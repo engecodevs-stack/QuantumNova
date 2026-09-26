@@ -1,0 +1,912 @@
+/* CSS for ToolsOverlay Component */
+
+.quantum-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: #05010a;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantum-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.quantum-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #05010a;
+}
+
+/* Fondo del overlay - más elaborado */
+.overlay-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at 30% 40%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(6, 182, 212, 0.1) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(236, 72, 153, 0.06) 0%, transparent 40%),
+    #05010a;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.overlay-background .grid-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 15% 25%, rgba(26, 140, 255, 0.04) 0%, transparent 2px),
+    radial-gradient(circle at 35% 75%, rgba(26, 140, 255, 0.03) 0%, transparent 2px),
+    radial-gradient(circle at 55% 15%, rgba(26, 140, 255, 0.04) 0%, transparent 2px),
+    radial-gradient(circle at 75% 65%, rgba(26, 140, 255, 0.03) 0%, transparent 2px),
+    radial-gradient(circle at 5% 90%, rgba(26, 140, 255, 0.02) 0%, transparent 2px),
+    radial-gradient(circle at 95% 85%, rgba(26, 140, 255, 0.02) 0%, transparent 2px);
+  background-size: 50px 50px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.overlay-background .line-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(26, 140, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(26, 140, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+.overlay-background .glow-orbs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.overlay-background .glow-orbs .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+}
+
+.overlay-background .glow-orbs .orb:nth-child(1) {
+  width: 300px;
+  height: 300px;
+  top: -50px;
+  right: -50px;
+  background: rgba(26, 140, 255, 0.08);
+}
+
+.overlay-background .glow-orbs .orb:nth-child(2) {
+  width: 400px;
+  height: 400px;
+  bottom: -100px;
+  left: -100px;
+  background: rgba(0, 102, 204, 0.06);
+}
+
+.overlay-background .glow-orbs .orb:nth-child(3) {
+  width: 200px;
+  height: 200px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(26, 140, 255, 0.04);
+}
+
+.close-btn {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  z-index: 10000;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #F5F5F7;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+  font-weight: 300;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.quantum-overlay.active .close-btn {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: all;
+}
+
+.close-btn:hover {
+  transform: rotate(90deg) scale(1.1);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(48, 176, 199, 0.5);
+  box-shadow: 0 0 15px rgba(48, 176, 199, 0.4);
+  color: #30B0C7;
+}
+
+#canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  background: transparent !important;
+}
+
+#svg-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+#svg-layer svg {
+  display: block;
+  width: 100vmin;
+  height: 100vmin;
+  max-width: 100vmin;
+  max-height: 100vmin;
+  aspect-ratio: 1/1;
+  background: transparent;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.app-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== ESTILO TOOLTIP - FONDO BLANCO PREMIUM ===== */
+.tooltip-container {
+  position: absolute;
+  cursor: pointer;
+  font-size: 17px;
+  border-radius: 10px;
+  pointer-events: auto;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1), transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+}
+
+.tooltip-container.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tooltip-container .tooltip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s;
+  border-radius: 15px;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.08),
+    0 2px 10px rgba(0, 0, 0, 0.04);
+  z-index: 20;
+  width: 200px;
+}
+
+.tooltip-container .tooltip .profile {
+  background: rgba(14, 14, 28, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 10px 15px;
+  padding: 12px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+.tooltip-container:hover .tooltip,
+.tooltip-container.selected .tooltip {
+  top: -160px;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.tooltip-container .icon {
+  text-decoration: none;
+  color: #fff;
+  display: block;
+  position: relative;
+}
+
+.tooltip-container .icon .layer {
+  width: 60px;
+  height: 60px;
+  transition: transform 0.3s;
+  position: relative;
+}
+
+.tooltip-container .icon:hover .layer {
+  transform: rotate(-35deg) skew(20deg);
+}
+
+.tooltip-container .icon .layer span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 15px;
+  transition: all 0.3s;
+  background: rgba(14, 14, 28, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.tooltip-container .icon .layer span,
+.tooltip-container .icon .text {
+  color: #d1d1e6;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.tooltip-container .icon:hover .layer span {
+  box-shadow: -1px 1px 3px rgba(255, 255, 255, 0.1);
+}
+
+.tooltip-container .icon .text {
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  opacity: 0;
+  font-weight: 500;
+  transform: translateX(-50%);
+  transition: bottom 0.3s ease, opacity 0.3s ease;
+  font-size: 12px;
+  white-space: nowrap;
+  color: #d1d1e6;
+}
+
+.tooltip-container .icon:hover .text {
+  bottom: -35px;
+  opacity: 1;
+  color: #30B0C7;
+}
+
+.tooltip-container .icon:hover .layer span:nth-child(1) {
+  opacity: 0.15;
+}
+.tooltip-container .icon:hover .layer span:nth-child(2) {
+  opacity: 0.3;
+  transform: translate(5px, -5px);
+}
+.tooltip-container .icon:hover .layer span:nth-child(3) {
+  opacity: 0.45;
+  transform: translate(10px, -10px);
+}
+.tooltip-container .icon:hover .layer span:nth-child(4) {
+  opacity: 0.6;
+  transform: translate(15px, -15px);
+}
+.tooltip-container .icon:hover .layer span:nth-child(5) {
+  opacity: 1;
+  transform: translate(20px, -20px);
+}
+
+.tooltip-container .icon .appSVG {
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  position: relative;
+  z-index: 1;
+  background: rgba(20, 20, 35, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.tooltip-container .icon .appSVG svg {
+  width: 32px;
+  height: 32px;
+}
+
+.tooltip-container .user {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.tooltip-container .user .img {
+  width: 45px;
+  height: 45px;
+  font-size: 20px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  color: #30B0C7;
+  flex-shrink: 0;
+}
+
+.tooltip-container .user .details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  color: #F5F5F7;
+  text-align: left;
+}
+
+.tooltip-container .user .details .name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #30B0C7;
+}
+
+.tooltip-container .user .details .username {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.tooltip-container .about {
+  color: rgba(255, 255, 255, 0.6);
+  padding-top: 5px;
+  font-size: 12px;
+  text-align: left;
+}
+
+/* ===== COLORES ORIGINALES DE CADA APP ===== */
+.tooltip-container[data-app="whatsapp"] .icon .layer span {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.tooltip-container[data-app="whatsapp"] .icon:hover .layer span {
+  border-color: #25D366;
+  box-shadow: 0 0 15px rgba(37, 211, 102, 0.4);
+}
+.tooltip-container[data-app="whatsapp"] .icon:hover .text {
+  color: #25D366;
+}
+.tooltip-container[data-app="whatsapp"] .user .img {
+  border-color: #25D366;
+  color: #25D366;
+}
+.tooltip-container[data-app="whatsapp"] .user .details .name {
+  color: #25D366;
+}
+.tooltip-container[data-app="whatsapp"] .icon .appSVG {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: rgba(37, 211, 102, 0.3);
+}
+.tooltip-container[data-app="whatsapp"].selected .icon .layer {
+  filter: drop-shadow(0 0 30px rgba(37, 211, 102, 0.4));
+}
+
+.tooltip-container[data-app="drive"] .icon .layer span {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.tooltip-container[data-app="drive"] .icon:hover .layer span {
+  border-color: #30B0C7;
+  box-shadow: 0 0 15px rgba(48, 176, 199, 0.4);
+}
+.tooltip-container[data-app="drive"] .icon:hover .text {
+  color: #30B0C7;
+}
+.tooltip-container[data-app="drive"] .user .img {
+  border-color: #30B0C7;
+  color: #30B0C7;
+}
+.tooltip-container[data-app="drive"] .user .details .name {
+  color: #30B0C7;
+}
+.tooltip-container[data-app="drive"] .icon .appSVG {
+  background: rgba(48, 176, 199, 0.15);
+  border-color: rgba(48, 176, 199, 0.3);
+}
+.tooltip-container[data-app="drive"].selected .icon .layer {
+  filter: drop-shadow(0 0 30px rgba(48, 176, 199, 0.4));
+}
+
+.tooltip-container[data-app="gmail"] .icon .layer span {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.tooltip-container[data-app="gmail"] .icon:hover .layer span {
+  border-color: #AF52DE;
+  box-shadow: 0 0 15px rgba(175, 82, 222, 0.4);
+}
+.tooltip-container[data-app="gmail"] .icon:hover .text {
+  color: #AF52DE;
+}
+.tooltip-container[data-app="gmail"] .user .img {
+  border-color: #AF52DE;
+  color: #AF52DE;
+}
+.tooltip-container[data-app="gmail"] .user .details .name {
+  color: #AF52DE;
+}
+.tooltip-container[data-app="gmail"] .icon .appSVG {
+  background: rgba(175, 82, 222, 0.15);
+  border-color: rgba(175, 82, 222, 0.3);
+}
+.tooltip-container[data-app="gmail"].selected .icon .layer {
+  filter: drop-shadow(0 0 30px rgba(175, 82, 222, 0.4));
+}
+
+.tooltip-container[data-app="gemini"] .icon .layer span {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.tooltip-container[data-app="gemini"] .icon:hover .layer span {
+  border-color: #30B0C7;
+  box-shadow: 0 0 15px rgba(48, 176, 199, 0.4);
+}
+.tooltip-container[data-app="gemini"] .icon:hover .text {
+  color: #30B0C7;
+}
+.tooltip-container[data-app="gemini"] .user .img {
+  border-color: #30B0C7;
+  color: #30B0C7;
+}
+.tooltip-container[data-app="gemini"] .user .details .name {
+  color: #30B0C7;
+}
+.tooltip-container[data-app="gemini"] .icon .appSVG {
+  background: rgba(48, 176, 199, 0.15);
+  border-color: rgba(48, 176, 199, 0.3);
+}
+.tooltip-container[data-app="gemini"].selected .icon .layer {
+  filter: drop-shadow(0 0 30px rgba(48, 176, 199, 0.4));
+}
+
+.tooltip-container[data-app="github"] .icon .layer span {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.tooltip-container[data-app="github"] .icon:hover .layer span {
+  border-color: #AF52DE;
+  box-shadow: 0 0 15px rgba(175, 82, 222, 0.4);
+}
+.tooltip-container[data-app="github"] .icon:hover .text {
+  color: #AF52DE;
+}
+.tooltip-container[data-app="github"] .user .img {
+  border-color: #AF52DE;
+  color: #AF52DE;
+}
+.tooltip-container[data-app="github"] .user .details .name {
+  color: #AF52DE;
+}
+.tooltip-container[data-app="github"] .icon .appSVG {
+  background: rgba(175, 82, 222, 0.15);
+  border-color: rgba(175, 82, 222, 0.3);
+}
+.tooltip-container[data-app="github"].selected .icon .layer {
+  filter: drop-shadow(0 0 30px rgba(175, 82, 222, 0.3));
+}
+
+.tooltip-container[data-app="pinterest"] .icon .layer span {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.tooltip-container[data-app="pinterest"] .icon:hover .layer span {
+  border-color: #AF52DE;
+  box-shadow: 0 0 15px rgba(175, 82, 222, 0.4);
+}
+.tooltip-container[data-app="pinterest"] .icon:hover .text {
+  color: #AF52DE;
+}
+.tooltip-container[data-app="pinterest"] .user .img {
+  border-color: #AF52DE;
+  color: #AF52DE;
+}
+.tooltip-container[data-app="pinterest"] .user .details .name {
+  color: #AF52DE;
+}
+.tooltip-container[data-app="pinterest"] .icon .appSVG {
+  background: rgba(175, 82, 222, 0.15);
+  border-color: rgba(175, 82, 222, 0.3);
+}
+.tooltip-container[data-app="pinterest"].selected .icon .layer {
+  filter: drop-shadow(0 0 30px rgba(175, 82, 222, 0.4));
+}
+
+.info-panel {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 8;
+  background: rgba(14, 14, 28, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 20px 24px;
+  max-width: 260px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.8s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+.quantum-overlay.active .info-panel {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.3s;
+}
+
+.info-panel h2 {
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 10px;
+}
+
+.info-panel h2 span {
+  background: linear-gradient(135deg, #30B0C7, #AF52DE);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.info-panel p {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 10px;
+}
+
+.info-panel .tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.05em;
+  margin-right: 4px;
+  margin-top: 3px;
+}
+
+.info-panel .tag.blue {
+  background: rgba(48, 176, 199, 0.15);
+  border-color: rgba(48, 176, 199, 0.25);
+  color: #30B0C7;
+}
+
+#subtitle {
+  position: absolute;
+  bottom: 4%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  font-weight: 300;
+  font-size: clamp(0.6rem, 1vw, 0.9rem);
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+  z-index: 10;
+}
+
+@media (max-width: 640px) {
+  .tooltip-container .icon .layer {
+    width: 50px;
+    height: 50px;
+  }
+  .tooltip-container .icon .appSVG svg {
+    width: 26px;
+    height: 26px;
+  }
+  .tooltip-container .tooltip {
+    width: 170px;
+  }
+  .tooltip-container .user .img {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+  .tooltip-container .user .details .name {
+    font-size: 14px;
+  }
+  .tooltip-container .user .details .username {
+    font-size: 10px;
+  }
+  .tooltip-container .about {
+    font-size: 10px;
+  }
+  .tooltip-container:hover .tooltip {
+    top: -140px;
+  }
+  .info-panel {
+    top: 80px;
+    left: 15px;
+    right: 15px;
+    max-width: none;
+    padding: 15px 18px;
+  }
+  .info-panel p {
+    font-size: 0.75rem;
+  }
+  .close-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    top: 20px;
+    right: 20px;
+  }
+  .tooltip-container .icon .text {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tooltip-container .icon .layer {
+    width: 42px;
+    height: 42px;
+  }
+  .tooltip-container .icon .appSVG svg {
+    width: 22px;
+    height: 22px;
+  }
+  .tooltip-container .tooltip {
+    width: 150px;
+    padding: 8px;
+  }
+  .tooltip-container .user .img {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  .tooltip-container .user .details .name {
+    font-size: 12px;
+  }
+  .tooltip-container .user .details .username {
+    font-size: 9px;
+  }
+  .tooltip-container .about {
+    font-size: 9px;
+    padding-top: 3px;
+  }
+  .tooltip-container:hover .tooltip {
+    top: -120px;
+  }
+  .close-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+    top: 15px;
+    right: 15px;
+  }
+  .info-panel {
+    top: 70px;
+    left: 10px;
+    right: 10px;
+    padding: 12px 14px;
+  }
+  .info-panel h2 {
+    font-size: 0.65rem;
+  }
+  .info-panel p {
+    font-size: 0.7rem;
+  }
+  .tooltip-container .icon .text {
+    font-size: 9px;
+  }
+}
+
+/* ===== LIGHT MODE STYLES OVERRIDES ===== */
+.light-mode .quantum-overlay,
+.light-mode .quantum-wrapper {
+  background: var(--color-bg-primary) !important;
+}
+
+.light-mode .overlay-background {
+  background: 
+    radial-gradient(ellipse at 30% 40%, rgba(159, 68, 211, 0.07) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(5, 162, 194, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 100%, rgba(236, 72, 153, 0.03) 0%, transparent 40%),
+    var(--color-bg-primary) !important;
+}
+
+.light-mode .overlay-background .line-pattern {
+  background-image: 
+    linear-gradient(rgba(5, 162, 194, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(5, 162, 194, 0.03) 1px, transparent 1px);
+}
+
+.light-mode .overlay-background .grid-pattern {
+  background-image: 
+    radial-gradient(circle at 15% 25%, rgba(5, 162, 194, 0.05) 0%, transparent 2px),
+    radial-gradient(circle at 35% 75%, rgba(5, 162, 194, 0.04) 0%, transparent 2px),
+    radial-gradient(circle at 55% 15%, rgba(5, 162, 194, 0.05) 0%, transparent 2px),
+    radial-gradient(circle at 75% 65%, rgba(5, 162, 194, 0.04) 0%, transparent 2px);
+}
+
+.light-mode .close-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: var(--color-text-primary);
+}
+
+.light-mode .close-btn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--color-cian);
+  border-color: rgba(5, 162, 194, 0.35);
+  box-shadow: 0 0 15px rgba(5, 162, 194, 0.2);
+}
+
+.light-mode .info-panel {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-custom);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+}
+
+.light-mode .info-panel h2 {
+  color: var(--color-text-secondary);
+}
+
+.light-mode .info-panel h2 span {
+  background: linear-gradient(135deg, var(--color-cian), var(--color-tech-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.light-mode .info-panel p {
+  color: var(--color-text-primary);
+}
+
+.light-mode .info-panel .tag {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  color: var(--color-text-secondary);
+}
+
+.light-mode .info-panel .tag.blue {
+  background: rgba(5, 162, 194, 0.1);
+  border-color: rgba(5, 162, 194, 0.2);
+  color: var(--color-cian);
+}
+
+.light-mode .tooltip-container .tooltip .profile {
+  background: var(--color-panel);
+  border: 1px solid var(--color-border-custom);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.5), 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.light-mode .tooltip-container .user .details .name {
+  color: var(--color-text-primary);
+}
+
+.light-mode .tooltip-container .user .details .username {
+  color: var(--color-text-secondary);
+}
+
+.light-mode .tooltip-container .about {
+  color: var(--color-text-secondary);
+}
+
+.light-mode .tooltip-container .icon .layer span {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .tooltip-container .icon:hover .layer span {
+  box-shadow: -1px 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .tooltip-container .icon .text {
+  color: var(--color-text-primary);
+}
+
+.light-mode .tooltip-container .icon .appSVG {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+.light-mode .tooltip-container .icon .appSVG svg {
+  fill: #1D1D1F;
+}
+
+.light-mode .tooltip-container .user .img {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.light-mode #subtitle {
+  color: var(--color-text-secondary);
+  opacity: 0.35;
+}
+
+/* Light mode overrides for SVG lines */
+.light-mode #svg-layer svg g[stroke="rgba(255,255,255,0.04)"] {
+  stroke: rgba(0, 0, 0, 0.05);
+}
+.light-mode #svg-layer svg circle[stroke="rgba(255,255,255,0.03)"] {
+  stroke: rgba(0, 0, 0, 0.04);
+}
+.light-mode #svg-layer svg circle[stroke="rgba(255,255,255,0.02)"] {
+  stroke: rgba(0, 0, 0, 0.02);
+}
+
+/* Brand hovers in light mode */
+.light-mode .tooltip-container[data-app="whatsapp"] .icon:hover .appSVG svg {
+  fill: #25D366;
+}
+.light-mode .tooltip-container[data-app="drive"] .icon:hover .appSVG svg {
+  fill: #05A2C2;
+}
+.light-mode .tooltip-container[data-app="gmail"] .icon:hover .appSVG svg {
+  fill: #9F44D3;
+}
+.light-mode .tooltip-container[data-app="gemini"] .icon:hover .appSVG svg {
+  fill: #05A2C2;
+}
+.light-mode .tooltip-container[data-app="github"] .icon:hover .appSVG svg {
+  fill: #1D1D1F;
+}
+.light-mode .tooltip-container[data-app="pinterest"] .icon:hover .appSVG svg {
+  fill: #E60023;
+}
+

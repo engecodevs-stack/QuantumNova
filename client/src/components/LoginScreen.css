@@ -1,0 +1,378 @@
+/* CSS for Quantum Nova Academic Login Screen */
+
+.login-body {
+  min-height: 100vh;
+  width: 100vw;
+  font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Inter', 'Helvetica Neue', system-ui, BlinkMacSystemFont, sans-serif;
+  background: #F5F4FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+/* Fondo sutil */
+#neural-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  background: #F5F4FA;
+  pointer-events: none;
+}
+
+#neural-bg canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0.35;
+}
+
+.glow-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 35%, rgba(169, 71, 232, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Contenedor principal */
+.quantum-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Card refinada con alto contraste */
+.liquid-card {
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid #E3E0EB;
+  box-shadow: 
+    0 20px 40px -15px rgba(24, 24, 31, 0.08),
+    0 1px 3px 0 rgba(24, 24, 31, 0.04);
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+  overflow: hidden;
+  padding: 2.2rem 2.2rem 2.5rem;
+  position: relative;
+}
+
+/* Logo Area */
+.logo-area {
+  text-align: center;
+  margin-bottom: 1.8rem;
+  position: relative;
+  z-index: 6;
+}
+
+.quantum-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+  background: #F8F7FC;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px -4px rgba(169, 71, 232, 0.15);
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid #E3E0EB;
+}
+
+.quantum-icon svg {
+  width: 48px;
+  height: 48px;
+}
+
+.logo-area h1 {
+  font-weight: 800;
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+  color: #18181F;
+  margin-bottom: 0.2rem;
+}
+
+.logo-area p {
+  font-size: 0.8rem;
+  color: #626273;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  display: inline-block;
+  padding: 0 8px;
+}
+
+/* Paneles con transición líquida */
+.form-panel {
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+}
+
+.hidden-panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.visible-panel {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+  animation: quantumFade 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+@keyframes quantumFade {
+  0% { opacity: 0; transform: translateY(18px); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Campos de entrada con estilo limpio y definido */
+.input-group {
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.input-group i {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: #A947E8;
+  transition: all 0.25s;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.85rem 1rem 0.85rem 2.8rem;
+  background: #F8F7FC;
+  border: 1px solid #E3E0EB;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #18181F;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.input-group input:focus {
+  border-color: #A947E8;
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(169, 71, 232, 0.15);
+}
+
+.input-group input::placeholder {
+  color: #8E8D9A;
+  font-weight: 400;
+}
+
+/* Opciones - estilo refinado */
+.row-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.8rem 0 1.4rem;
+  font-size: 0.85rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #626273;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkbox-label input {
+  width: 16px;
+  height: 16px;
+  accent-color: #A947E8;
+  margin: 0;
+  cursor: pointer;
+}
+
+.forgot-link {
+  color: #A947E8;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+  color: #8B2CD0;
+}
+
+/* Botón primario */
+.btn-primary-liquid {
+  background: #A947E8;
+  border: none;
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(169, 71, 232, 0.25);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary-liquid:hover {
+  transform: translateY(-1px);
+  background: #9535D4;
+  box-shadow: 0 6px 16px rgba(169, 71, 232, 0.35);
+}
+
+.btn-primary-liquid:active {
+  transform: translateY(0);
+}
+
+/* Botones sociales */
+.social-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.8rem 0 1rem;
+}
+
+.btn-social {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: #FFFFFF;
+  border: 1px solid #E3E0EB;
+  font-weight: 500;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #18181F;
+}
+
+.btn-google i { color: #DB4437; font-size: 1rem; }
+.btn-facebook i { color: #1877F2; font-size: 1rem; }
+
+.btn-social:hover {
+  background: #F8F7FC;
+  border-color: #A947E8;
+  box-shadow: 0 2px 6px rgba(24, 24, 31, 0.04);
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.2rem 0;
+  color: #8E8D9A;
+  gap: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.separator-line {
+  flex: 1;
+  height: 1px;
+  background: #E3E0EB;
+}
+
+.register-prompt {
+  text-align: center;
+  margin-top: 1.2rem;
+  color: #626273;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.link-switch {
+  background: none;
+  border: none;
+  color: #A947E8;
+  font-weight: 600;
+  margin-left: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.link-switch:hover {
+  text-decoration: underline;
+  color: #8B2CD0;
+}
+
+/* Mensajes de error */
+.error-msg {
+  font-size: 0.8rem;
+  color: #E53935;
+  margin-top: 6px;
+  margin-left: 12px;
+  display: block;
+  font-weight: 500;
+}
+
+/* Toast notificación */
+.quantum-toast-liquid {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.95);
+  background: #FFFFFF;
+  padding: 10px 24px;
+  border-radius: 12px;
+  color: #18181F;
+  font-weight: 500;
+  font-size: 0.85rem;
+  border: 1px solid #E3E0EB;
+  box-shadow: 0 10px 25px rgba(24, 24, 31, 0.1);
+  z-index: 10000;
+  opacity: 0;
+  transition: 0.2s ease;
+  pointer-events: none;
+}
+
+.quantum-toast-liquid.show {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+}
+
+@media (max-width: 560px) {
+  .login-body { padding: 1rem; }
+  .liquid-card {
+    padding: 1.6rem;
+    border-radius: 20px;
+  }
+  .quantum-icon {
+    width: 64px;
+    height: 64px;
+  }
+  .quantum-icon svg {
+    width: 38px;
+    height: 38px;
+  }
+  .logo-area h1 {
+    font-size: 1.5rem;
+  }
+  .social-buttons {
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+}

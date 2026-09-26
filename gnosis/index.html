@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gnosis - Panel de Afinación de Gemini</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Favicon SVG -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' stroke='%23ffffff' stroke-width='4' fill='none'/><circle cx='50' cy='50' r='15' fill='%23ffffff'/></svg>">
+</head>
+<body>
+
+  <!-- Liquid Background Glows -->
+  <div class="bg-liquid-glows">
+    <div class="liquid-glow"></div>
+  </div>
+
+  <div class="app-wrapper">
+    <!-- Apple Minimalist Header -->
+    <header class="app-navbar">
+      <div class="navbar-brand">
+        <span class="brand-title">GNOSIS</span>
+        <span class="brand-subtitle">Panel de Control de Afinación de Gemini</span>
+      </div>
+      <div class="navbar-actions">
+        <button id="btn-theme-toggle" class="btn btn-secondary btn-theme">Modo Claro</button>
+        <a href="/" class="nav-back-link">Volver al Lobby</a>
+      </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="dashboard-grid">
+      
+      <!-- LEFT COLUMN: CONTROLS & DATASET -->
+      <div class="grid-column">
+        
+        <!-- Hyperparameters -->
+        <section class="apple-card">
+          <div class="card-header">
+            <h2 class="card-title">HIPERPARÁMETROS</h2>
+          </div>
+          <div class="card-body">
+            <div class="setting-group">
+              <label for="epochs-input">Cantidad de Épocas</label>
+              <input type="number" id="epochs-input" min="1" max="15" value="5">
+            </div>
+            
+            <div class="setting-group">
+              <label for="lr-slider">Tasa de Aprendizaje: <span id="lr-val">0.0010</span></label>
+              <input type="range" id="lr-slider" min="0.0001" max="0.01" step="0.0001" value="0.001">
+            </div>
+
+            <!-- Uiverse Button style applied -->
+            <button id="btn-tune" class="button-uiverse">
+              <span class="button-text">Iniciar Afinación Gemini</span>
+              <div class="hoverEffect">
+                <div></div>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <!-- Dataset Logs -->
+        <section class="apple-card flex-grow">
+          <div class="card-header header-split">
+            <h2 class="card-title">DATASET DE ENTRENAMIENTO</h2>
+            <span class="badge" id="dataset-count">0 Pares</span>
+          </div>
+          <div class="card-body dataset-container">
+            <div class="dataset-controls">
+              <button id="btn-add-prompt" class="btn btn-secondary">Agregar Entrada</button>
+              <button id="btn-clear-db" class="btn btn-danger">Limpiar Logs</button>
+            </div>
+            <div class="dataset-list" id="dataset-list">
+              <div class="loading-state">Cargando base de datos del dataset...</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT COLUMN: PROGRESS TIMELINE & SNAPSHOTS -->
+      <div class="grid-column">
+        
+        <!-- Tuning Status & Timeline -->
+        <section class="apple-card">
+          <div class="card-header">
+            <h2 class="card-title">ESTADO DE AFINACIÓN</h2>
+          </div>
+          <div class="card-body">
+            <div class="status-summary">
+              <div class="status-indicator">
+                <span class="status-dot" id="status-dot"></span>
+                <span class="status-text" id="status-text">Inactivo</span>
+              </div>
+              <span class="job-id-text" id="job-id-text">Sin trabajo activo</span>
+            </div>
+
+            <!-- Timeline steps -->
+            <div class="tuning-timeline" id="tuning-timeline">
+              <div class="timeline-step" id="step-extract">
+                <div class="step-icon"></div>
+                <div class="step-content">
+                  <h3>1. Extracción de Datos</h3>
+                  <p>Recopilar preguntas y respuestas de Gemini de la base de datos.</p>
+                </div>
+              </div>
+              
+              <div class="timeline-step" id="step-validate">
+                <div class="step-icon"></div>
+                <div class="step-content">
+                  <h3>2. Validación de Datos</h3>
+                  <p>Dar formato al dataset según los requisitos de Google.</p>
+                </div>
+              </div>
+              
+              <div class="timeline-step" id="step-handshake">
+                <div class="step-icon"></div>
+                <div class="step-content">
+                  <h3>3. Sincronización de API</h3>
+                  <p>Enviar solicitud de afinación a la API de Google AI.</p>
+                </div>
+              </div>
+              
+              <div class="timeline-step" id="step-training">
+                <div class="step-icon"></div>
+                <div class="step-content">
+                  <h3>4. Entrenamiento del Modelo</h3>
+                  <p>Entrenamiento en la nube de Google y ejecución de épocas.</p>
+                </div>
+              </div>
+              
+              <div class="timeline-step" id="step-deploy">
+                <div class="step-icon"></div>
+                <div class="step-content">
+                  <h3>5. Despliegue Activo</h3>
+                  <p>Desplegar el modelo Gemini afinado en el espacio de trabajo.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Live Metrics & Chart -->
+        <section class="apple-card flex-grow">
+          <div class="card-header">
+            <h2 class="card-title">MÉTRICAS DE AFINACIÓN</h2>
+          </div>
+          <div class="card-body metrics-chart-body">
+            <div class="metrics-row">
+              <div class="metric-block">
+                <span class="metric-label">Paso Actual</span>
+                <span class="metric-value" id="metric-step">0</span>
+              </div>
+              <div class="metric-block">
+                <span class="metric-label">Época Actual</span>
+                <span class="metric-value" id="metric-epoch">0</span>
+              </div>
+              <div class="metric-block">
+                <span class="metric-label">Pérdida Media</span>
+                <span class="metric-value" id="metric-loss">0.0000</span>
+              </div>
+            </div>
+
+            <!-- SVG Smooth Chart -->
+            <div class="chart-container">
+              <svg id="loss-svg" viewBox="0 0 400 150">
+                <!-- SVG Gradients -->
+                <defs>
+                  <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0071e3" stop-opacity="0.25"/>
+                    <stop offset="100%" stop-color="#0071e3" stop-opacity="0.00"/>
+                  </linearGradient>
+                </defs>
+                <path id="loss-fill-path" d="" fill="url(#chart-grad)"/>
+                <path id="loss-path" d="" fill="none" stroke="#0071e3" stroke-width="2"/>
+              </svg>
+              <div class="chart-axis-label">Pérdida Media sobre Pasos</div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+
+    <!-- INFERENCE ARENA (BOTTOM SECTION) -->
+    <section class="apple-card arena-card">
+      <div class="card-header">
+        <h2 class="card-title">ARENA DE INFERENCIA</h2>
+      </div>
+      <div class="card-body arena-body">
+        <p class="arena-intro">
+          Prueba el modelo afinado contra el modelo base de Gemini. Escribe una pregunta para evaluar las diferencias en las salidas.
+        </p>
+        
+        <div class="chat-display" id="chat-display">
+          <div class="system-bubble">
+            La Arena de Inferencia está inactiva. Entrena un modelo afinado de Gemini para desbloquear las pruebas.
+          </div>
+        </div>
+
+        <form id="chat-form" class="chat-input-row">
+          <input type="text" id="chat-input" placeholder="Escribe una pregunta para evaluar el rendimiento del modelo..." required disabled>
+          <button type="submit" id="btn-send-chat" class="btn btn-action btn-send" disabled>Evaluar</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- Entry Addition Modal -->
+  <div id="add-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">AGREGAR ENTRADA AL DATASET</h2>
+        <button id="btn-close-modal" class="btn-close">&times;</button>
+      </div>
+      <form id="add-qa-form" class="modal-form">
+        <div class="input-group">
+          <label for="modal-prompt">Prompt del Usuario</label>
+          <input type="text" id="modal-prompt" placeholder="Ej. ¿Qué es una neurona?" required>
+        </div>
+        <div class="input-group">
+          <label for="modal-response">Respuesta Esperada (Salida de Gemini)</label>
+          <textarea id="modal-response" placeholder="Ej. Es la unidad básica de procesamiento..." rows="4" required></textarea>
+        </div>
+        <div class="input-group">
+          <label for="modal-category">Categoría</label>
+          <select id="modal-category">
+            <option value="Tutor">Tutor</option>
+            <option value="Mapa Conceptual">Mapa Conceptual</option>
+            <option value="Manual">Manual</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-action" style="margin-top: 10px;">Guardar Entrada</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>

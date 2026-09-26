@@ -1,0 +1,144 @@
+﻿================================================================================
+                           QUANTUMNOVA - RESUMEN DEL PROYECTO
+                   "Tu Segundo Cerebro Digital Impulsado por IA"
+================================================================================
+
+1. ¿QUÉ SIMBOLIZA EL PROYECTO? (FILOSOFÍA Y CONCEPTO CENTRAL)
+--------------------------------------------------------------------------------
+QuantumNova representa un cambio de paradigma en la educación y la gestión del
+conocimiento personal. Nace bajo la visión de transformar la toma de notas pasiva
+y dispersa en un "Segundo Cerebro Digital": un ecosistema vivo, interconectado y
+potenciado por Inteligencia Artificial.
+
+El proyecto simboliza la unión de tres pilares fundamentales:
+  a) Neurociencia y Pedagogía Activa:
+     Integra metodologías científicas de aprendizaje acelerado como el Active Recall
+     (recuerdo activo), Spaced Repetition (repetición espaciada) y el Método
+     Feynman (aprender explicando de manera simple).
+
+  b) Redes Semánticas del Pensamiento:
+     Inspirado en la filosofía de Obsidian y los grafos de conocimiento, concibe
+     que las ideas no viven aisladas en carpetas rígidas, sino que funcionan como
+     neuronas conectadas entre sí a través de enlaces bidireccionales ([[enlace]]).
+
+  c) Simbiosis Humano-IA:
+     La IA no reemplaza al estudiante; actúa como un tutor socrático ("Quantum")
+     que cuestiona, sintetiza, sugiere puentes conceptuales que el usuario no
+     había notado y evalúa la comprensión real mediante cuestionarios dinámicos.
+
+
+2. ¿QUÉ HACE EL PROYECTO? (ARQUITECTURA Y FUNCIONALIDADES)
+--------------------------------------------------------------------------------
+QuantumNova es una plataforma completa Full-Stack que integra tres aplicaciones
+en un mismo servidor unificado:
+
+2.1. LOBBY Y LANDING INTERACTIVA (/Loby)
+  * Presentación inmersiva con estética Liquid Glass, animaciones y fluidez.
+  * Demostrador interactivo en tiempo real donde el usuario escribe cualquier tema
+    y un motor visual genera al instante un grafo de nodos conceptuales interactivos.
+  * Módulos de Misión, Visión y Valores (privacidad de datos, innovación pedagógica
+    y accesibilidad universal).
+  * Simuladores de descarga en Google Play Store y portales de autenticación rápida.
+
+2.2. APLICACIÓN CENTRAL DE ESTUDIO (/client -> Servido en /app)
+  Desarrollada en React, TypeScript, Tailwind CSS y Framer Motion:
+  * Mis Notas (NotesView):
+    Editor estructurado de apuntes con soporte de Markdown, vinculación bidireccional
+    mediante sintaxis [[Título de Nota]], sistema de carpetas jerárquicas, etiquetas
+    (#tags), subida de imágenes y sincronización continua.
+  * Mapa Mental / Grafo de Conocimiento (MindMapView):
+    Canvas interactivo de alta velocidad con física de partículas, renderizado de
+    nodos circulares con órbitas, zoom, paneo, creación de enlaces manuales con
+    etiquetas descriptivas y navegación directa a notas con un clic.
+  * Tutor IA "Quantum" (ChatView):
+    Chat interactivo respaldado por RAG (Retrieval-Augmented Generation). El tutor
+    aprende del contexto específico de las notas del estudiante, explicando conceptos
+    con analogías simples y respondiendo dudas ancladas a su material de estudio.
+  * Generador de Exámenes y Quizzes (Quiz IA):
+    Genera cuestionarios de opción múltiple al instante sobre cualquier nota o concepto,
+    con explicaciones pedagógicas paso a paso y seguimiento de puntaje.
+  * Copiloto Contextual en Tiempo Real (RightPanel):
+    Al seleccionar cualquier apunte, la IA genera resúmenes ejecutivos en viñetas y
+    detecta automáticamente conexiones sugeridas con otras notas existentes.
+  * Control y Asistente por Voz (VoiceController):
+    Control total por comandos de voz en español (Web Speech API) con transcripción
+    en vivo: "crear nota [título]", "buscar [tema]", "explicar [concepto]",
+    "resumir nota", "iniciar estudio", etc. Incluye Text-to-Speech (TTS) natural.
+  * Biblioteca Inteligente (LibraryView):
+    Recomendador curricular guiado por IA que examina la biblioteca de apuntes del
+    estudiante y propone 6 temas clave organizados por dificultad para profundizar.
+  * Sesiones de Estudio Pomodoro & Dashboard:
+    Temporizador integrado que registra los minutos activos de estudio en la base
+    de datos y elabora métricas semanales de rendimiento y notas creadas.
+  * Ergonomía y Accesibilidad:
+    Escalado dinámico de tipografía (porcentaje), modo de alto contraste, modo
+    lectura zen (pantalla limpia sin distracciones) y conmutación de tema Claro/Oscuro.
+  * Menú 3D de Herramientas (ToolsOverlay):
+    Overlay radial interactivo con Three.js que enlaza a herramientas clave del
+    estudiante (Google Drive, Gmail, Gemini, GitHub, WhatsApp, Pinterest).
+
+2.3. PANEL GNOSIS: AFINACIÓN DE IA (/gnosis)
+  * Entorno especializado para el Fine-Tuning de modelos de lenguaje Gemini de Google
+    (gemini-1.5-flash-001-tuning / gemini-3.1-flash-lite).
+  * Almacén de datasets de entrenamiento (pares de instrucción/respuesta) clasificados
+    por categorías (Tutor, Mapas Conceptuales, etc.).
+  * Configuración de hiperparámetros: número de épocas y tasa de aprendizaje (Learning Rate).
+  * Monitor de entrenamiento en tiempo real con curva de pérdida (Mean Loss) y estados
+    de trabajo (CREATING, TUNING, ACTIVE, FAILED), con fallback de simulación realista.
+
+2.4. BACKEND Y PERSISTENCIA (/server)
+  * Construido en Node.js, Express y TypeScript.
+  * Base de datos MongoDB con Mongoose (con soporte de SQLite/Local): esquemas
+    para notas, carpetas, enlaces del grafo, historial de versiones, estadísticas de
+    estudio, comandos de voz y trabajos de afinación Gnosis.
+  * Integración híbrida con APIs de IA: Gemini API y OpenAI API, con algoritmos de
+    respaldo deterministas para garantizar operatividad aún sin conexión o sin API keys.
+  * Orquestación unificada: el servidor Express hospeda la API REST, el Lobby, el
+    panel Gnosis y la aplicación React compilada en un solo puerto (5000).
+
+
+3. ¿A QUÉ VA ESCALONADO? (HOJA DE RUTA Y ESCALABILIDAD)
+--------------------------------------------------------------------------------
+El proyecto está concebido con una arquitectura modular diseñada para escalar de
+un prototipo funcional de cuaderno inteligente a una plataforma educativa global:
+
+NIVEL 1: GESTOR DE CONOCIMIENTO INDIVIDUAL (ESTADO ACTUAL)
+  * Base sólida para que el estudiante tome notas, visualice su mapa conceptual en red,
+    reciba resúmenes automáticos y consulte dudas con su tutor RAG local.
+  * Sincronización de enlaces semánticos automáticos y manuales.
+  * Control por voz y herramientas de accesibilidad básica.
+
+NIVEL 2: MODELO PROPIO ADAPTATIVO & MULTIMODALIDAD COGNITIVA (CORTO PLAZO)
+  * A través del módulo Gnosis, entrenar y desplegar versiones de Gemini afinadas
+    exclusivamente con corpus pedagógicos y taxonomía de mapas conceptuales.
+  * Incorporación de entrada multimodal:
+    - Escaneo de fotos de libretas físicas y pizarras (OCR con IA).
+    - Subida de documentos PDF y diapositivas para desglosarlos en grafos automáticos.
+    - Transcripción y mapeo automático de grabaciones de voz de clases completas.
+
+NIVEL 3: DESPLIEGUE MULTIPLATAFORMA MÓVIL Y SINCRONIZACIÓN EN LA NUBE (MEDIANO PLAZO)
+  * Empaquetado nativo para Android (Google Play Store) e iOS mediante Capacitor/React Native.
+  * Sincronización en la nube multi-dispositivo en tiempo real (WebSockets / Supabase).
+  * Funcionamiento Offline-First con sincronización en segundo plano al recuperar conexión.
+
+NIVEL 4: RED SOCIAL DE CONOCIMIENTO Y APRENDIZAJE COLABORATIVO (LARGO PLAZO)
+  * Creación de "Grafos Compartidos": mapas conceptuales grupales donde varios estudiantes
+    o investigadores aportan nodos y enlaces en vivo.
+  * Marketplace / Biblioteca Comunitaria de Conocimiento: poder clonar ramas de estudio
+    completas creadas por profesores, expertos o compañeros destacados.
+  * Integración con plataformas académicas (LMS como Canvas, Moodle, Google Classroom).
+
+NIVEL 5: SUPER-CEREBRO PREDICTIVO Y AUTÓNOMO (VISIÓN FINAL)
+  * Sistema de Repetición Espaciada Predictiva: la IA predice con exactitud qué conceptos
+    estás a punto de olvidar según tu curva de olvido personal y te formula preguntas
+    rápidas en el momento óptimo del día.
+  * Generador holístico de planes de carrera y simulación de exámenes de admisión o grado,
+    adaptando la dificultad dinámicamente según los vacíos de conocimiento detectados en el grafo.
+
+
+================================================================================
+EN CONCLUSIÓN:
+QuantumNova no es un simple editor de texto ni un chatbot convencional; es un
+entorno integrado de cognición aumentada que ayuda al ser humano a pensar mejor,
+recordar más y aprender a la velocidad que exige el futuro.
+================================================================================

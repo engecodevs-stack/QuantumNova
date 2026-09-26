@@ -1,0 +1,14 @@
+{
+  "name": "quantum-nova",
+  "version": "1.0.0",
+  "description": "QuantumNova - Smart AI-Powered Educational Platform",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client",
+    "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "build:all": "npm run build --prefix server && npm run build --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
