@@ -297,11 +297,47 @@ function App() {
       const res = await fetch('http://localhost:5000/api/notes');
       if (res.ok) {
         const data = await res.json();
-        setNotes(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setNotes(data);
+          localStorage.setItem('quantum_local_notes', JSON.stringify(data));
+          return;
+        }
       }
     } catch (err) {
-      console.error('Error loading notes:', err);
+      console.warn('Backend local no disponible, usando almacenamiento local/demo.');
     }
+
+    const saved = localStorage.getItem('quantum_local_notes');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setNotes(parsed);
+          return;
+        }
+      } catch (e) {}
+    }
+
+    const sampleNotes: Note[] = [
+      {
+        id: 'note-1',
+        title: 'Introducción a la Física Cuántica',
+        content: `# Introducción a la Física Cuántica\n\nLa **física cuántica** es la rama de la física que estudia la materia y la energía a escalas atómicas y subatómicas.\n\n## Conceptos Clave\n1. **Dualidad Onda-Partícula**: Las partículas exhiben comportamientos de ondas y partículas según la observación. Consulta [[Dualidad Onda Particula]].\n2. **Superposición**: Un sistema cuántico existe en varios estados posibles a la vez.\n3. **Entrelazamiento Cuántico**: Conexión instantánea entre partículas entrelazadas.\n\n#fisica #cuantica #ciencia`,
+        tags: ['#fisica', '#cuantica', '#ciencia'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      },
+      {
+        id: 'note-2',
+        title: 'Dualidad Onda Particula',
+        content: `# Dualidad Onda Partícula\n\nFenómeno cuántico donde electrones y fotones presentan tanto propiedades de ondas continuas como partículas discretas.\n\n- Experimento de la doble rendija de Thomas Young.\n- Conexión directa con [[Introducción a la Física Cuántica]].\n\n#fisica #mecanicacuantica`,
+        tags: ['#fisica', '#mecanicacuantica'],
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+    ];
+    setNotes(sampleNotes);
+    localStorage.setItem('quantum_local_notes', JSON.stringify(sampleNotes));
   };
 
   useEffect(() => {

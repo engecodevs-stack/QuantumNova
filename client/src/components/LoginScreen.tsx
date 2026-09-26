@@ -269,11 +269,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
           onLoginSuccess(data.user);
         }, 1000);
       } else {
-        showToast(data.error || 'Error al iniciar sesión', true);
+        showToast(data.error || 'Credenciales incorrectas', true);
       }
     } catch (err) {
       console.error(err);
-      showToast('Error de conexión con el servidor MySQL', true);
+      // Fallback a modo local si el backend no está disponible
+      const fallbackUser = {
+        id: 'local_' + Date.now(),
+        fullname: email.split('@')[0] || 'Estudiante Nova',
+        email: email,
+        role: isTeacherEmail(email) ? ('profe' as const) : ('alumno' as const)
+      };
+      showToast(`Modo local: ¡Bienvenido a QuantumNova, ${fallbackUser.fullname}!`);
+      setTimeout(() => {
+        onLoginSuccess(fallbackUser);
+      }, 1000);
     }
   };
 
@@ -331,7 +341,19 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
   };
 
   const socialMock = (provider: string) => {
-    showToast(`Conectando con ${provider} · Integración segura`, false);
+    showToast(`Conectando con ${provider}...`, false);
+    setTimeout(() => {
+      const demoUser = {
+        id: 'user_' + provider.toLowerCase() + '_' + Date.now(),
+        fullname: `Estudiante ${provider}`,
+        email: `estudiante@${provider.toLowerCase()}.com`,
+        role: 'alumno' as const
+      };
+      showToast(`¡Conectado! Bienvenido ${demoUser.fullname}`);
+      setTimeout(() => {
+        onLoginSuccess(demoUser);
+      }, 700);
+    }, 900);
   };
 
   return (
@@ -477,6 +499,40 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
                 <i className="fab fa-facebook-f"></i> Facebook
               </button>
             </div>
+
+            <button
+              type="button"
+              className="btn-guest-mode"
+              style={{
+                marginTop: '12px',
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                border: '1px dashed rgba(255, 255, 255, 0.25)',
+                background: 'rgba(255, 255, 255, 0.04)',
+                color: '#c084fc',
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.2s ease'
+              }}
+              onClick={() => {
+                const guestUser = {
+                  id: 'guest_' + Date.now(),
+                  fullname: 'Estudiante Invitado',
+                  email: 'invitado@quantumnova.ai',
+                  role: 'alumno' as const
+                };
+                showToast('Iniciando sesión como Invitado...');
+                setTimeout(() => onLoginSuccess(guestUser), 500);
+              }}
+            >
+              <i className="fas fa-rocket"></i> Explorar en Modo Demo / Invitado
+            </button>
 
             <div className="register-prompt">
               ¿Nuevo en QUANTUMNOVA?

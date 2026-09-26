@@ -12,6 +12,7 @@ lerna-debug.log*
 dist/
 dist-ssr/
 build/
+dist_deploy/
 *.local
 
 # Variables de entorno y secretos
