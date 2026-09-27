@@ -462,8 +462,19 @@ export const NotesView: React.FC<NotesViewProps> = ({
     }
   };
 
-  // Fetch folders from MongoDB backend
+  // Fetch folders from MongoDB backend or local storage fallback
   const fetchFolders = async () => {
+    const storageKey = `quantum_folders_${currentUser?.id || 'guest'}`;
+    const localSaved = localStorage.getItem(storageKey);
+    if (localSaved) {
+      try {
+        const parsed = JSON.parse(localSaved);
+        if (Array.isArray(parsed)) {
+          setFolders(parsed);
+        }
+      } catch (e) {}
+    }
+
     try {
       const headers: Record<string, string> = {};
       if (currentUser?.id && currentUser.id !== 'guest_student') {
@@ -472,10 +483,16 @@ export const NotesView: React.FC<NotesViewProps> = ({
       const res = await fetch(getApiUrl('/folders'), { headers });
       if (res.ok) {
         const data = await res.json();
-        setFolders(Array.isArray(data) ? data : []);
+        if (Array.isArray(data)) {
+          setFolders(data);
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(data));
+          } catch (e) {}
+          return;
+        }
       }
     } catch (err) {
-      console.warn('Error fetching folders:', err);
+      console.warn('Backend folders offline, using local folders:', err);
     }
   };
 
@@ -506,10 +523,18 @@ export const NotesView: React.FC<NotesViewProps> = ({
     }
   }, [activeNote?.id]);
 
-  // Folder management actions
+  // Folder management actions with local-first resilience
   const handleCreateFolder = async () => {
     const folderName = prompt('Nombre de la nueva carpeta:');
     if (!folderName || !folderName.trim()) return;
+    const name = folderName.trim();
+    const tempFolder: Folder = {
+      id: 'folder-' + Date.now(),
+      name
+    };
+    const storageKey = `quantum_folders_${currentUser?.id || 'guest'}`;
+
+    let createdFolder = tempFolder;
     try {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (currentUser?.id && currentUser.id !== 'guest_student') {
@@ -518,29 +543,51 @@ export const NotesView: React.FC<NotesViewProps> = ({
       const res = await fetch(getApiUrl('/folders'), {
         method: 'POST',
         headers,
-        body: JSON.stringify({ name: folderName.trim() })
+        body: JSON.stringify({ name })
       });
       if (res.ok) {
-        await fetchFolders();
+        const backendFolder = await res.json();
+        createdFolder = {
+          id: backendFolder._id || backendFolder.id || tempFolder.id,
+          name: backendFolder.name || name
+        };
       }
     } catch (err) {
-      console.error('Error creating folder:', err);
+      console.warn('Backend folder create offline, saved locally:', err);
     }
+
+    setFolders(prev => {
+      const next = [...prev.filter(f => f.id !== createdFolder.id), createdFolder];
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
   };
 
   const handleDeleteFolder = async (folderId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!confirm('¿Seguro que deseas eliminar esta carpeta? Las notas dentro de ella quedarán sin carpeta.')) return;
+    const storageKey = `quantum_folders_${currentUser?.id || 'guest'}`;
+    setFolders(prev => {
+      const next = prev.filter(f => f.id !== folderId);
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(next));
+      } catch (e) {}
+      return next;
+    });
+
     try {
-      const res = await fetch(getApiUrl(`/folders/${folderId}`), {
-        method: 'DELETE'
-      });
-      if (res.ok) {
-        await fetchFolders();
-        await onRefreshNotes();
+      const headers: Record<string, string> = {};
+      if (currentUser?.id && currentUser.id !== 'guest_student') {
+        headers['x-user-id'] = currentUser.id;
       }
+      await fetch(getApiUrl(`/folders/${folderId}`), {
+        method: 'DELETE',
+        headers
+      });
     } catch (err) {
-      console.error('Error deleting folder:', err);
+      console.warn('Backend delete folder offline, removed locally:', err);
     }
   };
 
@@ -1251,14 +1298,34 @@ export const NotesView: React.FC<NotesViewProps> = ({
       e.preventDefault();
       const cleanTag = tagInput.trim().startsWith('#') ? tagInput.trim() : `#${tagInput.trim()}`;
       if (!editTags.includes(cleanTag)) {
-        setEditTags([...editTags, cleanTag]);
+        const nextTags = [...editTags, cleanTag];
+        setEditTags(nextTags);
+        if (activeNote) {
+          onUpdateNote({
+            ...activeNote,
+            title: editTitle,
+            content: editorRef.current ? editorRef.current.innerHTML : editContent,
+            tags: nextTags,
+            updated_at: new Date().toISOString()
+          });
+        }
       }
       setTagInput('');
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setEditTags(editTags.filter(t => t !== tagToRemove));
+    const nextTags = editTags.filter(t => t !== tagToRemove);
+    setEditTags(nextTags);
+    if (activeNote) {
+      onUpdateNote({
+        ...activeNote,
+        title: editTitle,
+        content: editorRef.current ? editorRef.current.innerHTML : editContent,
+        tags: nextTags,
+        updated_at: new Date().toISOString()
+      });
+    }
   };
 
   const handleLinkClick = async (title: string, targetNote?: Note) => {
@@ -1946,7 +2013,19 @@ export const NotesView: React.FC<NotesViewProps> = ({
                       type="text"
                       placeholder="Título de la nota..."
                       value={editTitle}
-                      onChange={e => setEditTitle(e.target.value)}
+                      onChange={e => {
+                        const newTitle = e.target.value;
+                        setEditTitle(newTitle);
+                        if (activeNote) {
+                          onUpdateNote({
+                            ...activeNote,
+                            title: newTitle,
+                            content: editorRef.current ? editorRef.current.innerHTML : editContent,
+                            tags: editTags,
+                            updated_at: new Date().toISOString()
+                          });
+                        }
+                      }}
                       className="w-full bg-transparent text-text-primary font-bold text-2xl placeholder:text-text-secondary/40 outline-none border-b border-border-custom pb-2 focus:border-tech-purple transition-colors"
                     />
 

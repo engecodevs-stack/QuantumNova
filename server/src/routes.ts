@@ -176,6 +176,24 @@ router.put('/notes/:id', async (req: Request, res: Response) => {
     const userId = req.headers['x-user-id'] as string;
     const { title, content, tags, folderId, images } = req.body;
     
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      // If note was created offline/locally, create/upsert it in database
+      const noteData: any = {
+        title: title || 'Sin Título',
+        content: content || '',
+        tags: tags || [],
+        images: images || []
+      };
+      if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+        noteData.user = new mongoose.Types.ObjectId(userId);
+      }
+      if (folderId && mongoose.Types.ObjectId.isValid(folderId)) {
+        noteData.folder = new mongoose.Types.ObjectId(folderId);
+      }
+      const created = await Note.create(noteData);
+      return res.json(created);
+    }
+
     const existing = await Note.findById(req.params.id);
     if (!existing) {
       return res.status(404).json({ error: 'Nota no encontrada' });
@@ -217,6 +235,11 @@ router.delete('/notes/:id', async (req: Request, res: Response) => {
   try {
     const userId = req.headers['x-user-id'] as string;
     const noteId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(noteId)) {
+      return res.json({ success: true, message: 'Nota eliminada' });
+    }
+
     const note = await Note.findById(noteId);
     if (note) {
       if (userId && note.user && note.user.toString() !== userId) {

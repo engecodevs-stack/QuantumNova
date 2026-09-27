@@ -247,6 +247,7 @@ function App() {
   const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const [studySeconds, setStudySeconds] = useState(0);
   const studySecondsRef = useRef(0);
+  const updateTimeoutRef = useRef<Record<string, any>>({});
 
   // Chat Feed
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -281,6 +282,24 @@ function App() {
 
   // Fetch initial notes
   const fetchNotes = async () => {
+    const isGuest = !currentUser?.id || currentUser.id === 'guest_student';
+    const storageKey = currentUser?.id ? `quantum_notes_${currentUser.id}` : 'quantum_notes_guest';
+
+    // 1. Check user-specific localStorage first for instantaneous offline/resilient loading
+    const saved = localStorage.getItem(storageKey);
+    let hasLocalData = false;
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setNotes(parsed);
+          hasLocalData = true;
+          setActiveNote(prev => prev || parsed[0]);
+        }
+      } catch (e) {}
+    }
+
+    // 2. Fetch from backend if available
     try {
       const headers: Record<string, string> = {};
       if (currentUser?.id && currentUser.id !== 'guest_student') {
@@ -290,27 +309,30 @@ function App() {
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data)) {
-          setNotes(data);
+          if (data.length > 0 || !hasLocalData) {
+            setNotes(data);
+            try {
+              localStorage.setItem(storageKey, JSON.stringify(data));
+            } catch (e) {}
+            if (data.length > 0) {
+              setActiveNote(prev => prev || data[0]);
+            } else {
+              setActiveNote(null);
+            }
+          }
           return;
         }
       }
     } catch (err) {
-      console.warn('Backend local no disponible.');
+      console.warn('Backend local no disponible, usando almacenamiento local.');
+    }
+
+    if (hasLocalData) {
+      return;
     }
 
     // Only inject sample demo notes if explicitly in guest demo mode ('guest_student')
-    if (currentUser?.id === 'guest_student') {
-      const saved = localStorage.getItem('quantum_local_demo_notes');
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setNotes(parsed);
-            return;
-          }
-        } catch (e) {}
-      }
-
+    if (isGuest) {
       const sampleNotes: Note[] = [
         {
           id: 'note-1',
@@ -330,12 +352,16 @@ function App() {
         }
       ];
       setNotes(sampleNotes);
-      localStorage.setItem('quantum_local_demo_notes', JSON.stringify(sampleNotes));
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(sampleNotes));
+      } catch (e) {}
+      setActiveNote(sampleNotes[0]);
       return;
     }
 
     // For any real registered user: clean empty notes list (serious & professional)
     setNotes([]);
+    setActiveNote(null);
   };
 
   useEffect(() => {
@@ -442,13 +468,30 @@ function App() {
     loadRAGContext();
   }, [activeNote]);
 
-  // Note CRUD handlers
-  const handleCreateNote = async (title?: string, folderId?: string) => {
+  // Note CRUD handlers with robust Local-First fallback and debounced sync
+  const handleCreateNote = async (title?: string, folderId?: string): Promise<Note> => {
     const defaultTitle = title || 'Nueva Nota';
+    const tempId = 'note-' + Date.now();
+    const fallbackNote: Note = {
+      id: tempId,
+      title: defaultTitle,
+      content: `# ${defaultTitle}\n\nEscribe aquí tus ideas...`,
+      tags: [],
+      folderId: folderId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    let createdNote = fallbackNote;
+
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (currentUser?.id && currentUser.id !== 'guest_student') {
+        headers['x-user-id'] = currentUser.id;
+      }
       const response = await fetch(getApiUrl('/notes'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           title: defaultTitle,
           content: `# ${defaultTitle}\n\nEscribe aquí tus ideas...`,
@@ -458,71 +501,141 @@ function App() {
       });
 
       if (response.ok) {
-        const newNote = await response.json();
-        setNotes(prev => [newNote, ...prev]);
-        setActiveNote(newNote);
-        return newNote;
+        const backendNote = await response.json();
+        createdNote = {
+          ...backendNote,
+          id: backendNote._id || backendNote.id || tempId
+        };
       }
     } catch (err) {
-      console.error('Failed to create note:', err);
+      console.warn('Backend offline o no disponible, nota creada localmente:', err);
     }
+
+    setNotes(prev => {
+      const nextNotes = [createdNote, ...prev.filter(n => n.id !== createdNote.id)];
+      const storageKey = currentUser?.id ? `quantum_notes_${currentUser.id}` : 'quantum_notes_guest';
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(nextNotes));
+      } catch (e) {}
+      return nextNotes;
+    });
+
+    setActiveNote(createdNote);
+    return createdNote;
   };
 
   const handleUpdateNote = async (updatedNote: Note) => {
-    try {
-      const response = await fetch(getApiUrl(`/notes/${updatedNote.id}`), {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: updatedNote.title,
-          content: updatedNote.content,
-          tags: updatedNote.tags,
-          images: updatedNote.images || [],
-          folderId: updatedNote.folderId !== undefined ? updatedNote.folderId : (updatedNote.folder ? updatedNote.folder.id : null)
-        })
-      });
-
-      if (response.ok) {
-        const syncedNote = await response.json();
-        setNotes(prev => prev.map(n => (n.id === syncedNote.id ? syncedNote : n)));
-        setActiveNote(syncedNote);
+    // 1. Instantly update React state & user-specific local storage
+    setNotes(prev => {
+      const nextNotes = prev.map(n => (n.id === updatedNote.id ? updatedNote : n));
+      if (!nextNotes.some(n => n.id === updatedNote.id)) {
+        nextNotes.unshift(updatedNote);
       }
-    } catch (err) {
-      console.error('Failed to update note:', err);
+      const storageKey = currentUser?.id ? `quantum_notes_${currentUser.id}` : 'quantum_notes_guest';
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(nextNotes));
+      } catch (e) {}
+      return nextNotes;
+    });
+
+    setActiveNote(prev => (prev?.id === updatedNote.id ? updatedNote : prev));
+
+    // 2. Debounce backend sync by 600ms to avoid flooding on fast typing
+    if (updateTimeoutRef.current[updatedNote.id]) {
+      clearTimeout(updateTimeoutRef.current[updatedNote.id]);
     }
+
+    updateTimeoutRef.current[updatedNote.id] = setTimeout(async () => {
+      try {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (currentUser?.id && currentUser.id !== 'guest_student') {
+          headers['x-user-id'] = currentUser.id;
+        }
+        const response = await fetch(getApiUrl(`/notes/${updatedNote.id}`), {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            title: updatedNote.title,
+            content: updatedNote.content,
+            tags: updatedNote.tags,
+            images: updatedNote.images || [],
+            folderId: updatedNote.folderId !== undefined ? updatedNote.folderId : (updatedNote.folder ? updatedNote.folder.id : null)
+          })
+        });
+
+        if (response.ok) {
+          const syncedNote = await response.json();
+          const formattedSynced: Note = {
+            ...syncedNote,
+            id: syncedNote._id || syncedNote.id || updatedNote.id
+          };
+          setNotes(prev => {
+            const nextNotes = prev.map(n => (n.id === updatedNote.id ? formattedSynced : n));
+            const storageKey = currentUser?.id ? `quantum_notes_${currentUser.id}` : 'quantum_notes_guest';
+            try {
+              localStorage.setItem(storageKey, JSON.stringify(nextNotes));
+            } catch (e) {}
+            return nextNotes;
+          });
+        }
+      } catch (err) {
+        console.warn('Sincronización con backend falló o sin red (guardado localmente):', err);
+      }
+    }, 600);
   };
 
   const handleDeleteNote = async (id: string) => {
-    try {
-      const response = await fetch(getApiUrl(`/notes/${id}`), {
-        method: 'DELETE'
-      });
+    // 1. Instantly remove locally
+    setNotes(prev => {
+      const nextNotes = prev.filter(n => n.id !== id);
+      const storageKey = currentUser?.id ? `quantum_notes_${currentUser.id}` : 'quantum_notes_guest';
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(nextNotes));
+      } catch (e) {}
+      return nextNotes;
+    });
+    setActiveNote(prev => (prev?.id === id ? null : prev));
 
-      if (response.ok) {
-        setNotes(prev => prev.filter(n => n.id !== id));
-        setActiveNote(null);
+    // 2. Sync deletion to backend
+    try {
+      const headers: Record<string, string> = {};
+      if (currentUser?.id && currentUser.id !== 'guest_student') {
+        headers['x-user-id'] = currentUser.id;
       }
+      await fetch(getApiUrl(`/notes/${id}`), {
+        method: 'DELETE',
+        headers
+      });
     } catch (err) {
-      console.error('Failed to delete note:', err);
+      console.warn('Backend delete sync falló o sin red (eliminado localmente):', err);
     }
   };
 
   const handleDeleteNotesBulk = async (ids: string[]) => {
+    // 1. Instantly remove locally
+    setNotes(prev => {
+      const nextNotes = prev.filter(n => !ids.includes(n.id));
+      const storageKey = currentUser?.id ? `quantum_notes_${currentUser.id}` : 'quantum_notes_guest';
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(nextNotes));
+      } catch (e) {}
+      return nextNotes;
+    });
+    setActiveNote(prev => (prev && ids.includes(prev.id) ? null : prev));
+
+    // 2. Sync bulk deletion to backend
     try {
-      const response = await fetch(getApiUrl('/notes/bulk-delete'), {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (currentUser?.id && currentUser.id !== 'guest_student') {
+        headers['x-user-id'] = currentUser.id;
+      }
+      await fetch(getApiUrl('/notes/bulk-delete'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ ids })
       });
-
-      if (response.ok) {
-        setNotes(prev => prev.filter(n => !ids.includes(n.id)));
-        if (activeNote && ids.includes(activeNote.id)) {
-          setActiveNote(null);
-        }
-      }
     } catch (err) {
-      console.error('Failed to delete notes in bulk:', err);
+      console.warn('Backend bulk delete falló (eliminado localmente):', err);
     }
   };
 
