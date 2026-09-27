@@ -18,23 +18,75 @@ function hashPassword(password: string): string {
   return crypto.createHash('sha256').update(password).digest('hex');
 }
 
+let dbPromise: Promise<typeof mongoose> | null = null;
+let isSeeded = false;
+
+export async function ensureDbConnected(): Promise<boolean> {
+  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/quantum_nova';
+
+  if (mongoose.connection.readyState === 1) {
+    if (!isSeeded) {
+      isSeeded = true;
+      initDb().catch(e => console.error('Seeding warning:', e));
+    }
+    return true;
+  }
+
+  if (mongoose.connection.readyState === 2 && dbPromise) {
+    try {
+      await dbPromise;
+      return (mongoose.connection.readyState as number) === 1;
+    } catch {
+      return false;
+    }
+  }
+
+  try {
+    console.log(`Connecting to MongoDB (${uri.startsWith('mongodb+srv://') ? 'Cloud MongoDB Atlas' : uri})...`);
+    dbPromise = mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 5000,
+      bufferCommands: false
+    });
+    await dbPromise;
+    console.log('MongoDB connected successfully.');
+    if (!isSeeded) {
+      isSeeded = true;
+      initDb().catch(e => console.error('Seeding warning:', e));
+    }
+    return true;
+  } catch (err) {
+    dbPromise = null;
+    console.warn('⚠️ No se pudo conectar a MongoDB:', (err as any)?.message || err);
+    return false;
+  }
+}
+
 export async function initDb() {
-  console.log(`Connecting to MongoDB at ${MONGODB_URI}...`);
-  await mongoose.connect(MONGODB_URI);
-  console.log('MongoDB connected.');
+  if (mongoose.connection.readyState !== 1) {
+    const ok = await ensureDbConnected();
+    if (!ok) {
+      console.warn('InitDb: MongoDB is not connected, skipping seed.');
+      return;
+    }
+  }
 
   // 1. Seed Default User if empty
   const notesCount = await Note.countDocuments();
   if (notesCount === 0) {
     console.log('Seeding initial MongoDB database data...');
 
-    // Seed Default User
-    const defaultUser = await User.create({
-      username: 'QuantumStudent',
-      email: 'student@quantumnova.ai',
-      password: hashPassword('password123')
-    });
-    console.log('Default user seeded:', defaultUser.username);
+    // Seed or get Default User
+    let defaultUser = await User.findOne({ email: 'student@quantumnova.ai' });
+    if (!defaultUser) {
+      defaultUser = await User.create({
+        fullname: 'Estudiante QuantumNova',
+        username: 'QuantumStudent',
+        email: 'student@quantumnova.ai',
+        password: hashPassword('password123'),
+        role: 'alumno'
+      });
+      console.log('Default user seeded:', defaultUser.username);
+    }
 
     // Seed Folders for Default User
     const folderFisica = await Folder.create({ name: 'Física Cuántica', user: defaultUser._id });

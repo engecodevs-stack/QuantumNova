@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { GraduationCap, Clock, Play, Plus } from 'lucide-react';
 import type { Course } from '../types';
+import { getApiUrl } from '../config/api';
 
 interface CoursesViewProps {
   onStartCourseStudy: (course: Course) => void;
@@ -19,7 +20,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
   const fetchCourses = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/courses');
+      const response = await fetch(getApiUrl('/courses'));
       if (response.ok) {
         const data = await response.json();
         setCourses(data);
@@ -38,7 +39,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
   const handleProgressIncrement = async (courseId: string, currentProgress: number) => {
     const newProgress = Math.min(currentProgress + 5, 100);
     try {
-      const response = await fetch(`http://localhost:5000/api/courses/${courseId}/progress`, {
+      const response = await fetch(getApiUrl(`/courses/${courseId}/progress`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -53,7 +54,7 @@ export const CoursesView: React.FC<CoursesViewProps> = ({
 
         // If completed 100%, check if we can unlock achievement
         if (newProgress === 100) {
-          fetch('http://localhost:5000/api/achievements/ach-2/unlock', { method: 'POST' });
+          fetch(getApiUrl('/achievements/ach-2/unlock'), { method: 'POST' });
         }
       }
     } catch (err) {

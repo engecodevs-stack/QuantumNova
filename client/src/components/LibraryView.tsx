@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Library, Search, Sparkles, ChevronRight, X } from 'lucide-react';
 import Markdown from 'markdown-to-jsx';
+import { getApiUrl } from '../config/api';
 
 interface LibraryViewProps {
   onExplainConcept: (concept: string) => void;
@@ -42,7 +43,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
           headers['x-user-id'] = userId;
         }
 
-        const response = await fetch('http://localhost:5000/api/ai/library', {
+        const response = await fetch(getApiUrl('/ai/library'), {
           headers
         });
         if (response.ok) {
@@ -65,7 +66,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
     setActiveExplanation('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/ai/explain', {
+      const response = await fetch(getApiUrl('/ai/explain'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

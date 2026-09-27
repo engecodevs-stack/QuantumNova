@@ -584,6 +584,14 @@ router.post('/auth/register', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Todos los campos son obligatorios' });
     }
 
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        dbConnected: false,
+        error: 'Base de datos MongoDB no disponible. Configura la variable MONGODB_URI en Vercel con tu cadena de MongoDB Atlas.'
+      });
+    }
+
     const cleanEmail = email.trim().toLowerCase();
     const existing = await User.findOne({ email: cleanEmail });
     if (existing) {
@@ -621,6 +629,14 @@ router.post('/auth/login', async (req: Request, res: Response) => {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ error: 'Correo y contraseña requeridos' });
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        dbConnected: false,
+        error: 'Base de datos MongoDB no disponible. Configura la variable MONGODB_URI en Vercel con tu cadena de MongoDB Atlas.'
+      });
     }
 
     const cleanEmail = email.trim().toLowerCase();
@@ -746,7 +762,7 @@ router.post('/teacher/communities/:id/materials', async (req: Request, res: Resp
           const filePath = path.join(uploadsDir, safeName);
           const buffer = Buffer.from(matches[2], 'base64');
           fs.writeFileSync(filePath, buffer);
-          savedFileUrl = `http://localhost:5000/uploads/${safeName}`;
+          savedFileUrl = `/uploads/${safeName}`;
         }
       } catch (fileErr) {
         console.error('Error saving presentation file to disk:', fileErr);

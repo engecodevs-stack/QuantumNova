@@ -7,7 +7,7 @@ import App from './App.tsx'
 const originalFetch = window.fetch;
 window.fetch = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
   const url = typeof input === 'string' ? input : (input instanceof URL ? input.toString() : input.url);
-  if (url.includes('localhost:5000') || url.startsWith('/api') || !url.startsWith('http')) {
+  if (url.includes('/api') || url.includes('localhost:5000') || !url.startsWith('http')) {
     const userStr = localStorage.getItem('quantum_user');
     if (userStr) {
       try {

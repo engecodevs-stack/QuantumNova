@@ -1,9 +1,9 @@
 {
   "version": 2,
   "buildCommand": "node scripts/build-deploy.mjs",
-  "outputDirectory": "dist_deploy",
   "cleanUrls": true,
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/app", "destination": "/app/index.html" },
     { "source": "/app/(.*)", "destination": "/app/index.html" }
   ]

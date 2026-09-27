@@ -8,7 +8,15 @@
     "build": "node scripts/build-deploy.mjs",
     "install:all": "npm install && npm install --prefix server && npm install --prefix client",
     "dev": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
-    "build:all": "npm run build --prefix server && npm run build --prefix client"
+    "build:all": "npm run build --prefix server && npm run build --prefix client",
+    "start": "node server/dist/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongoose": "^9.7.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

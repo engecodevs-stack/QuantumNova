@@ -31,6 +31,7 @@ import {
   List as ListIcon
 } from 'lucide-react';
 import type { Note, User, Community } from '../types';
+import { getApiUrl } from '../config/api';
 import { MindMapView } from './MindMapView';
 import { ContextualHelpBadge } from './ContextualHelpBadge';
 
@@ -464,7 +465,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
   // Fetch folders from MongoDB backend
   const fetchFolders = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/folders');
+      const res = await fetch(getApiUrl('/folders'));
       if (res.ok) {
         const data = await res.json();
         setFolders(data);
@@ -506,7 +507,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
     const folderName = prompt('Nombre de la nueva carpeta:');
     if (!folderName || !folderName.trim()) return;
     try {
-      const res = await fetch('http://localhost:5000/api/folders', {
+      const res = await fetch(getApiUrl('/folders'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: folderName.trim() })
@@ -523,7 +524,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
     e.stopPropagation();
     if (!confirm('¿Seguro que deseas eliminar esta carpeta? Las notas dentro de ella quedarán sin carpeta.')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/folders/${folderId}`, {
+      const res = await fetch(getApiUrl(`/folders/${folderId}`), {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -1140,7 +1141,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
       return;
     }
     try {
-      const res = await fetch('http://localhost:5000/api/student/communities', {
+      const res = await fetch(getApiUrl('/student/communities'), {
         headers: { 'x-user-id': currentUser.id }
       });
       if (res.ok) {
@@ -1160,7 +1161,7 @@ export const NotesView: React.FC<NotesViewProps> = ({
     if (!selectedTargetCommId || !activeNote) return;
     setIsSubmittingPdf(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/student/communities/${selectedTargetCommId}/submit-note`, {
+      const res = await fetch(getApiUrl(`/student/communities/${selectedTargetCommId}/submit-note`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -18,6 +18,7 @@ import {
   ShieldAlert
 } from 'lucide-react';
 import type { Community, User, QuizQuestion, CommunityExam, StudentSubmission, TeacherMaterial } from '../types';
+import { getApiUrl } from '../config/api';
 
 interface TeacherPortalViewProps {
   currentUser: User | null;
@@ -104,7 +105,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
   const fetchCommunities = async () => {
     if (!currentUser?.id) return;
     try {
-      const res = await fetch('http://localhost:5000/api/teacher/communities', {
+      const res = await fetch(getApiUrl('/teacher/communities'), {
         headers: {
           'x-user-id': currentUser.id
         }
@@ -144,7 +145,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
       return;
     }
     try {
-      const res = await fetch('http://localhost:5000/api/teacher/communities', {
+      const res = await fetch(getApiUrl('/teacher/communities'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -184,7 +185,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}`), {
         method: 'DELETE',
         headers: { 'x-user-id': currentUser?.id || '' }
       });
@@ -268,7 +269,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
 
     const commId = selectedCommunity._id || selectedCommunity.id;
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/materials`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/materials`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -307,7 +308,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
     const commId = selectedCommunity._id || selectedCommunity.id;
     if (!confirm('¿Deseas eliminar este material?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/materials/${matId}`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/materials/${matId}`), {
         method: 'DELETE',
         headers: { 'x-user-id': currentUser?.id || '' }
       });
@@ -335,7 +336,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
 
     setIsGenerating(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/generate-exam`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/generate-exam`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -376,7 +377,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
     const material = selectedCommunity.materials?.find(m => (m._id || m.id) === selectedMatId);
 
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/exams`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/exams`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -413,7 +414,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
     if (!selectedCommunity) return;
     const commId = selectedCommunity._id || selectedCommunity.id;
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/exams/${examId}/status`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/exams/${examId}/status`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -447,7 +448,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
     if (!selectedCommunity) return;
     const commId = selectedCommunity._id || selectedCommunity.id;
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/exams/${examId}/duplicate`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/exams/${examId}/duplicate`), {
         method: 'POST',
         headers: { 'x-user-id': currentUser?.id || '' }
       });
@@ -469,7 +470,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
     const commId = selectedCommunity._id || selectedCommunity.id;
     if (!confirm('¿Deseas eliminar esta evaluación?')) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/exams/${examId}`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/exams/${examId}`), {
         method: 'DELETE',
         headers: { 'x-user-id': currentUser?.id || '' }
       });
@@ -491,7 +492,7 @@ export const TeacherPortalView: React.FC<TeacherPortalViewProps> = ({
     const commId = selectedCommunity._id || selectedCommunity.id;
     const examId = editingExam._id || editingExam.id;
     try {
-      const res = await fetch(`http://localhost:5000/api/teacher/communities/${commId}/exams/${examId}`, {
+      const res = await fetch(getApiUrl(`/teacher/communities/${commId}/exams/${examId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './LoginScreen.css';
+import { getApiUrl } from '../config/api';
 
 interface LoginScreenProps {
   onLoginSuccess: (user: { id: string; fullname: string; email: string; role?: 'profe' | 'alumno' }) => void;
+  onBackToLobby?: () => void;
 }
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
@@ -248,7 +250,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     if (pwd.length < 4) { showToast('La contraseña debe tener al menos 4 caracteres', true); return; }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(getApiUrl('/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pwd })
@@ -267,12 +269,24 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         // Notify parent application of successful login
         setTimeout(() => {
           onLoginSuccess(data.user);
-        }, 1000);
+        }, 800);
+      } else if (data.dbConnected === false || response.status === 503) {
+        // Base de datos remota aún no configurada o desconectada -> entrar en Modo Local
+        showToast('Modo Local activo (Base de datos remota sin conectar)');
+        const fallbackUser = {
+          id: 'local_' + Date.now(),
+          fullname: email.split('@')[0] || 'Estudiante Nova',
+          email: email,
+          role: isTeacherEmail(email) ? ('profe' as const) : ('alumno' as const)
+        };
+        setTimeout(() => {
+          onLoginSuccess(fallbackUser);
+        }, 800);
       } else {
         showToast(data.error || 'Credenciales incorrectas', true);
       }
     } catch (err) {
-      console.error(err);
+      console.warn('Backend no disponible, usando modo local:', err);
       // Fallback a modo local si el backend no está disponible
       const fallbackUser = {
         id: 'local_' + Date.now(),
@@ -283,7 +297,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
       showToast(`Modo local: ¡Bienvenido a QuantumNova, ${fallbackUser.fullname}!`);
       setTimeout(() => {
         onLoginSuccess(fallbackUser);
-      }, 1000);
+      }, 800);
     }
   };
 
@@ -304,7 +318,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
     if (pwd !== confirmPwd) { setRegErrorMsg('Las contraseñas no coinciden'); return; }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(getApiUrl('/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullname, email, password: pwd })
@@ -323,12 +337,32 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onLoginSuccess }) => {
         setRegEmail('');
         setRegPassword('');
         setRegConfirm('');
+      } else if (data.dbConnected === false || response.status === 503) {
+        showToast(`¡Cuenta local creada! Bienvenido, ${fullname}`);
+        const fallbackUser = {
+          id: 'local_' + Date.now(),
+          fullname: fullname,
+          email: email,
+          role: isTeacherEmail(email) ? ('profe' as const) : ('alumno' as const)
+        };
+        setTimeout(() => {
+          onLoginSuccess(fallbackUser);
+        }, 800);
       } else {
-        setRegErrorMsg(data.error || 'Error en el registro');
+        setRegErrorMsg(data.error || 'Error al crear la cuenta');
       }
     } catch (err) {
-      console.error(err);
-      setRegErrorMsg('Error de conexión con el servidor MySQL');
+      console.warn('Backend offline durante registro, creando usuario local:', err);
+      const fallbackUser = {
+        id: 'local_' + Date.now(),
+        fullname: fullname,
+        email: email,
+        role: isTeacherEmail(email) ? ('profe' as const) : ('alumno' as const)
+      };
+      showToast(`Modo local: ¡Bienvenido a QuantumNova, ${fullname}!`);
+      setTimeout(() => {
+        onLoginSuccess(fallbackUser);
+      }, 800);
     }
   };
 

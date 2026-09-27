@@ -22,15 +22,12 @@ import {
   markOnboardingCompleted,
   markOnboardingSkipped
 } from './utils/onboardingStorage';
+import { getApiUrl } from './config/api';
 
 function App() {
   // Redirect helper for lobby
   const redirectToLobby = () => {
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      window.location.href = 'http://localhost:5000/';
-    } else {
-      window.location.href = '/';
-    }
+    window.location.href = '/';
   };
 
   // Authentication & Session
@@ -68,13 +65,6 @@ function App() {
     }
     return null;
   });
-
-  // Redirect to lobby if not logged in
-  useEffect(() => {
-    if (!currentUser) {
-      redirectToLobby();
-    }
-  }, [currentUser]);
 
   const [showToolsOverlay, setShowToolsOverlay] = useState(false);
 
@@ -124,7 +114,7 @@ function App() {
     }
     const checkLock = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/student/active-exam-lock', {
+        const res = await fetch(getApiUrl('/student/active-exam-lock'), {
           headers: { 'x-user-id': currentUser.id }
         });
         if (res.ok) {
@@ -294,7 +284,7 @@ function App() {
   // Fetch initial notes
   const fetchNotes = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/notes');
+      const res = await fetch(getApiUrl('/notes'));
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
@@ -381,7 +371,7 @@ function App() {
           
           // Sync with database every 60 seconds of study
           if (next % 60 === 0) {
-            fetch('http://localhost:5000/api/stats/study', {
+            fetch(getApiUrl('/stats/study'), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ minutes: 1 })
@@ -411,7 +401,7 @@ function App() {
       setIsSummaryLoading(true);
       try {
         // 1. Fetch AI Summary
-        const summaryRes = await fetch('http://localhost:5000/api/ai/summary', {
+        const summaryRes = await fetch(getApiUrl('/ai/summary'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ content: activeNote.content })
@@ -422,7 +412,7 @@ function App() {
         }
 
         // 2. Fetch AI Suggested Connections
-        const connRes = await fetch('http://localhost:5000/api/ai/suggest-connections', {
+        const connRes = await fetch(getApiUrl('/ai/suggest-connections'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -448,7 +438,7 @@ function App() {
   const handleCreateNote = async (title?: string, folderId?: string) => {
     const defaultTitle = title || 'Nueva Nota';
     try {
-      const response = await fetch('http://localhost:5000/api/notes', {
+      const response = await fetch(getApiUrl('/notes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -472,7 +462,7 @@ function App() {
 
   const handleUpdateNote = async (updatedNote: Note) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/notes/${updatedNote.id}`, {
+      const response = await fetch(getApiUrl(`/notes/${updatedNote.id}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -496,7 +486,7 @@ function App() {
 
   const handleDeleteNote = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/notes/${id}`, {
+      const response = await fetch(getApiUrl(`/notes/${id}`), {
         method: 'DELETE'
       });
 
@@ -511,7 +501,7 @@ function App() {
 
   const handleDeleteNotesBulk = async (ids: string[]) => {
     try {
-      const response = await fetch('http://localhost:5000/api/notes/bulk-delete', {
+      const response = await fetch(getApiUrl('/notes/bulk-delete'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids })
@@ -531,7 +521,7 @@ function App() {
   // Chat queries with AI Tutor
   const handleAskTutor = async (query: string): Promise<string> => {
     try {
-      const response = await fetch('http://localhost:5000/api/ai/chat', {
+      const response = await fetch(getApiUrl('/ai/chat'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -582,7 +572,7 @@ function App() {
     const topic = activeNote ? activeNote.title : 'Física Cuántica';
 
     try {
-      const response = await fetch('http://localhost:5000/api/ai/quiz', {
+      const response = await fetch(getApiUrl('/ai/quiz'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -637,7 +627,7 @@ function App() {
         if (activeNote) {
           setIsRightPanelOpen(true);
           setIsSummaryLoading(true);
-          const summaryRes = await fetch('http://localhost:5000/api/ai/summary', {
+          const summaryRes = await fetch(getApiUrl('/ai/summary'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ content: activeNote.content })
@@ -811,7 +801,7 @@ function App() {
             setView={setView}
             onCreateNote={async (title, content) => {
               try {
-                const response = await fetch('http://localhost:5000/api/notes', {
+                const response = await fetch(getApiUrl('/notes'), {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({

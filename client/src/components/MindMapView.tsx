@@ -5,6 +5,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import type { Note } from '../types';
+import { getApiUrl } from '../config/api';
 
 
 interface MindMapViewProps {
@@ -169,7 +170,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
       setIsLoading(true);
 
 
-      const response = await fetch('http://localhost:5000/api/graph');
+      const response = await fetch(getApiUrl('/graph'));
       if (!response.ok) throw new Error('Network response error');
       const data = await response.json();
 
@@ -1192,7 +1193,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
     const noteName = prompt('Nombre de la nueva nota mental:');
     if (noteName && noteName.trim()) {
       setIsLoading(true);
-      fetch('http://localhost:5000/api/notes', {
+      fetch(getApiUrl('/notes'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1230,7 +1231,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
   const handleSaveLinkLabel = async (linkId: string) => {
     try {
       setIsLoading(true);
-      const res = await fetch(`http://localhost:5000/api/links/${linkId}`, {
+      const res = await fetch(getApiUrl(`/links/${linkId}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ label: linkLabelInput.trim() })
@@ -1249,7 +1250,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
   const handleDeleteLink = async (linkId: string) => {
     try {
       setIsLoading(true);
-      const res = await fetch(`http://localhost:5000/api/links/${linkId}`, {
+      const res = await fetch(getApiUrl(`/links/${linkId}`), {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -1269,7 +1270,7 @@ export const MindMapView: React.FC<MindMapViewProps> = ({
 
     try {
       setIsLoading(true);
-      const res = await fetch('http://localhost:5000/api/links', {
+      const res = await fetch(getApiUrl('/links'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

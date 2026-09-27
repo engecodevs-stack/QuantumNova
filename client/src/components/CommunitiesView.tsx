@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react';
 import type { Community, CommunityExam, User, StudentSubmission } from '../types';
+import { getApiUrl } from '../config/api';
 
 interface CommunitiesViewProps {
   currentUser: User | null;
@@ -58,7 +59,7 @@ export const CommunitiesView: React.FC<CommunitiesViewProps> = ({
   const fetchStudentCommunities = async () => {
     if (!currentUser?.id) return;
     try {
-      const res = await fetch('http://localhost:5000/api/student/communities', {
+      const res = await fetch(getApiUrl('/student/communities'), {
         headers: {
           'x-user-id': currentUser.id
         }
@@ -96,7 +97,7 @@ export const CommunitiesView: React.FC<CommunitiesViewProps> = ({
       return;
     }
     try {
-      const res = await fetch('http://localhost:5000/api/student/communities/join', {
+      const res = await fetch(getApiUrl('/student/communities/join'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -153,7 +154,7 @@ export const CommunitiesView: React.FC<CommunitiesViewProps> = ({
       setIsSubmittingExam(true);
       try {
         const commId = selectedCommunity?._id || selectedCommunity?.id;
-        await fetch(`http://localhost:5000/api/student/communities/${commId}/submit-exam`, {
+        await fetch(getApiUrl(`/student/communities/${commId}/submit-exam`), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -189,7 +190,7 @@ export const CommunitiesView: React.FC<CommunitiesViewProps> = ({
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/student/communities/${commId}/leave`, {
+      const res = await fetch(getApiUrl(`/student/communities/${commId}/leave`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

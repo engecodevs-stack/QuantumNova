@@ -13,6 +13,7 @@ dist/
 dist-ssr/
 build/
 dist_deploy/
+public/
 *.local
 
 # Variables de entorno y secretos

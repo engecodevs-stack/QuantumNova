@@ -118,14 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const user = localStorage.getItem('quantum_user');
       if (user) {
-        // Redirigir a la app de notas
-        let targetUrl = '/app/';
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-          targetUrl = `http://localhost:5173/app/?user=${encodeURIComponent(user)}`;
-        } else {
-          targetUrl = `/app/?user=${encodeURIComponent(user)}`;
-        }
-        window.location.href = targetUrl;
+        window.location.href = '/app/';
       } else {
         navigateToSlide('workspace');
       }
@@ -305,16 +298,50 @@ document.addEventListener('DOMContentLoaded', () => {
           updateUserUI();
           loginForm.reset();
           loginModal.classList.remove('active');
-          showToast(`¡Sesión iniciada! Bienvenido, ${data.user.fullname}`);
+          showToast(`¡Sesión iniciada! Bienvenido, ${data.user.fullname}. Redirigiendo...`);
+          setTimeout(() => {
+            window.location.href = '/app/';
+          }, 700);
+        } else if (data.dbConnected === false) {
+          // Si la base de datos remota aún no está conectada, entrar en modo local
+          const isProfe = email.toLowerCase().endsWith('@profe.edu.mx');
+          const fallbackUser = {
+            id: 'local_' + Date.now(),
+            fullname: email.split('@')[0] || 'Estudiante Nova',
+            email: email,
+            role: isProfe ? 'profe' : 'alumno'
+          };
+          localStorage.setItem('quantum_user', JSON.stringify(fallbackUser));
+          localStorage.setItem('qn_user', JSON.stringify({ name: fallbackUser.fullname, email: fallbackUser.email }));
+          updateUserUI();
+          loginModal.classList.remove('active');
+          showToast('Modo local activado. Redirigiendo a tu espacio...');
+          setTimeout(() => {
+            window.location.href = '/app/';
+          }, 700);
         } else {
-          alert(data.error || 'Error al iniciar sesión');
+          alert(data.error || 'Credenciales incorrectas');
         }
       })
       .catch(err => {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;
-        console.error(err);
-        alert('Error de conexión con el servidor.');
+        console.warn('Backend o base de datos no disponible, activando modo local:', err);
+        const isProfe = email.toLowerCase().endsWith('@profe.edu.mx');
+        const fallbackUser = {
+          id: 'local_' + Date.now(),
+          fullname: email.split('@')[0] || 'Estudiante Nova',
+          email: email,
+          role: isProfe ? 'profe' : 'alumno'
+        };
+        localStorage.setItem('quantum_user', JSON.stringify(fallbackUser));
+        localStorage.setItem('qn_user', JSON.stringify({ name: fallbackUser.fullname, email: fallbackUser.email }));
+        updateUserUI();
+        loginModal.classList.remove('active');
+        showToast(`¡Modo local activado! Bienvenido, ${fallbackUser.fullname}. Redirigiendo...`);
+        setTimeout(() => {
+          window.location.href = '/app/';
+        }, 700);
       });
     });
   }
@@ -354,7 +381,27 @@ document.addEventListener('DOMContentLoaded', () => {
           updateUserUI();
           registerForm.reset();
           loginModal.classList.remove('active');
-          showToast(`¡Cuenta registrada! Bienvenido, ${data.user.fullname}`);
+          showToast(`¡Cuenta registrada! Bienvenido, ${data.user.fullname}. Redirigiendo...`);
+          setTimeout(() => {
+            window.location.href = '/app/';
+          }, 700);
+        } else if (data.dbConnected === false) {
+          const isProfe = email.toLowerCase().endsWith('@profe.edu.mx');
+          const fallbackUser = {
+            id: 'local_' + Date.now(),
+            fullname: name || 'Estudiante Nova',
+            email: email,
+            role: isProfe ? 'profe' : 'alumno'
+          };
+          localStorage.setItem('quantum_user', JSON.stringify(fallbackUser));
+          localStorage.setItem('qn_user', JSON.stringify({ name: fallbackUser.fullname, email: fallbackUser.email }));
+          updateUserUI();
+          registerForm.reset();
+          loginModal.classList.remove('active');
+          showToast(`¡Cuenta local creada! Bienvenido, ${fallbackUser.fullname}. Redirigiendo...`);
+          setTimeout(() => {
+            window.location.href = '/app/';
+          }, 700);
         } else {
           alert(data.error || 'Error en el registro');
         }
@@ -362,11 +409,47 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(err => {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;
-        console.error(err);
-        alert('Error de conexión con el servidor.');
+        console.warn('Backend o base de datos no disponible, activando cuenta local:', err);
+        const isProfe = email.toLowerCase().endsWith('@profe.edu.mx');
+        const fallbackUser = {
+          id: 'local_' + Date.now(),
+          fullname: name || 'Estudiante Nova',
+          email: email,
+          role: isProfe ? 'profe' : 'alumno'
+        };
+        localStorage.setItem('quantum_user', JSON.stringify(fallbackUser));
+        localStorage.setItem('qn_user', JSON.stringify({ name: fallbackUser.fullname, email: fallbackUser.email }));
+        updateUserUI();
+        registerForm.reset();
+        loginModal.classList.remove('active');
+        showToast(`¡Cuenta local creada! Bienvenido, ${fallbackUser.fullname}. Redirigiendo...`);
+        setTimeout(() => {
+          window.location.href = '/app/';
+        }, 700);
       });
     });
   }
+
+  // Hook Guest Mode buttons in Lobby
+  document.querySelectorAll('.lobby-guest-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const guestUser = {
+        id: 'guest_' + Date.now(),
+        fullname: 'Estudiante Invitado',
+        email: 'invitado@quantumnova.ai',
+        role: 'alumno'
+      };
+      localStorage.setItem('qn_user', JSON.stringify({ name: guestUser.fullname, email: guestUser.email }));
+      localStorage.setItem('quantum_user', JSON.stringify(guestUser));
+      updateUserUI();
+      loginModal.classList.remove('active');
+      showToast('¡Iniciando en Modo Demo / Invitado! Redirigiendo a tu espacio...');
+      setTimeout(() => {
+        window.location.href = '/app/';
+      }, 600);
+    });
+  });
 
   // Simulate Google / Facebook OAuth Integration
   function simulateSocialAuth(platform, placeholderName) {
@@ -375,13 +458,23 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       const name = placeholderName;
       const email = `${name.toLowerCase().replace(/\s+/g, '')}@${platform.toLowerCase()}.com`;
+      const socialUser = {
+        id: 'user_' + platform.toLowerCase() + '_' + Date.now(),
+        fullname: name,
+        email: email,
+        role: 'alumno'
+      };
       
       localStorage.setItem('qn_user', JSON.stringify({ name, email }));
+      localStorage.setItem('quantum_user', JSON.stringify(socialUser));
       updateUserUI();
       
       loginModal.classList.remove('active');
-      showToast(`¡Acceso verificado vía ${platform}! Bienvenido, ${name}`);
-    }, 1200);
+      showToast(`¡Acceso verificado vía ${platform}! Bienvenido, ${name}. Redirigiendo...`);
+      setTimeout(() => {
+        window.location.href = '/app/';
+      }, 700);
+    }, 900);
   }
 
   // Hook social login clicks
