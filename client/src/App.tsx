@@ -8,7 +8,6 @@ import { ChatView } from './components/ChatView';
 import { CoursesView } from './components/CoursesView';
 import { LibraryView } from './components/LibraryView';
 import { SettingsView } from './components/SettingsView';
-import { LoginScreen } from './components/LoginScreen';
 import { ToolsOverlay } from './components/ToolsOverlay';
 import { TeacherPortalView } from './components/TeacherPortalView';
 import { CommunitiesView } from './components/CommunitiesView';
@@ -57,31 +56,32 @@ function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed && parsed.email && !parsed.role) {
-          parsed.role = parsed.email.toLowerCase().endsWith('@profe.edu.mx') ? 'profe' : 'alumno';
+        if (parsed && parsed.email) {
+          if (!parsed.role) {
+            parsed.role = parsed.email.toLowerCase().endsWith('@profe.edu.mx') ? 'profe' : 'alumno';
+          }
+          return parsed;
         }
-        return parsed;
       } catch (e) {}
     }
-    return null;
+
+    // Default Nova student session to ensure immediate, complete access to all workspace features
+    const defaultStudent: User = {
+      id: 'guest_student',
+      fullname: 'Estudiante Nova',
+      email: 'estudiante@quantumnova.ai',
+      role: 'alumno'
+    };
+    try {
+      localStorage.setItem('quantum_user', JSON.stringify(defaultStudent));
+    } catch (e) {}
+    return defaultStudent;
   });
 
   const [showToolsOverlay, setShowToolsOverlay] = useState(false);
 
-  const handleLoginSuccess = (userData: User) => {
-    if (!userData.role) {
-      userData.role = userData.email.toLowerCase().endsWith('@profe.edu.mx') ? 'profe' : 'alumno';
-    }
-    localStorage.setItem('quantum_user', JSON.stringify(userData));
-    setCurrentUser(userData);
-    if (userData.role === 'profe') {
-      setView('teacher');
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('quantum_user');
-    setCurrentUser(null);
     redirectToLobby();
   };
 
@@ -848,10 +848,6 @@ function App() {
         return <div className="p-8 text-text-primary text-xs">Sección no encontrada.</div>;
     }
   };
-
-  if (!currentUser) {
-    return <LoginScreen onLoginSuccess={handleLoginSuccess} />;
-  }
 
   return (
     <div className="w-full h-full flex overflow-hidden bg-bg-primary font-sans relative">

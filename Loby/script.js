@@ -515,7 +515,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Update demo buttons to say 'Empezar' when logged in
       demoBtns.forEach(btn => {
-        btn.textContent = 'Empezar';
+        const label = btn.querySelector('.btn-demo-label');
+        if (label) {
+          label.textContent = 'Empezar';
+        } else if (btn.tagName === 'BUTTON') {
+          btn.textContent = 'Empezar';
+        }
       });
     } else {
       if (loginNavBtn) loginNavBtn.classList.remove('hidden');
@@ -523,7 +528,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Revert demo buttons back to 'Probar Demo Gratis' when logged out
       demoBtns.forEach(btn => {
-        btn.textContent = 'Probar Demo Gratis';
+        const label = btn.querySelector('.btn-demo-label');
+        if (label) {
+          label.textContent = 'Probar Demo Gratis';
+        } else if (btn.tagName === 'BUTTON') {
+          btn.textContent = 'Probar Demo Gratis';
+        }
       });
     }
   }
