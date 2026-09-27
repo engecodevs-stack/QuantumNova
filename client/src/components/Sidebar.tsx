@@ -27,7 +27,6 @@ interface SidebarProps {
   isSidebarOpenMobile?: boolean;
   onCloseMobile?: () => void;
   currentUser?: User | null;
-  onToggleRole?: () => void;
   onLogout?: () => void;
   isRightPanelOpen?: boolean;
   onToggleRightPanel?: () => void;
@@ -42,7 +41,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpenMobile = false,
   onCloseMobile,
   currentUser,
-  onToggleRole,
   onLogout,
   isRightPanelOpen = false,
   onToggleRightPanel
@@ -380,21 +378,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             </div>
 
-            {/* Role Badge and Switcher */}
+            {/* Role Indicator */}
             <div className="flex items-center justify-between pt-1.5 border-t border-[#E1E1EA] dark:border-[#292936]">
               <span className="text-[10px] font-medium text-[#5F6070] dark:text-[#A4A4B5]">
-                {isTeacher ? 'Rol Docente' : 'Rol Estudiante'}
+                {isTeacher ? 'Rol de la Cuenta' : 'Rol de la Cuenta'}
               </span>
-              {onToggleRole && (
-                <button
-                  data-tour="sidebar-role-toggle"
-                  onClick={onToggleRole}
-                  className="text-[10px] font-semibold text-[#A947E8] dark:text-[#B04BEE] hover:underline transition-colors cursor-pointer"
-                  title="Alternar rol para probar ambas experiencias"
-                >
-                  Alternar
-                </button>
-              )}
+              <span className={`text-[9.5px] font-bold px-2 py-0.5 rounded-full ${
+                isTeacher 
+                  ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20' 
+                  : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20'
+              }`}>
+                {isTeacher ? 'Docente' : 'Estudiante'}
+              </span>
             </div>
 
             {/* User Profile Card & Direct Logout */}

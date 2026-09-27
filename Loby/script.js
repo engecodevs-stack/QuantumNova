@@ -240,35 +240,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (toggleToRegister) toggleToRegister.addEventListener('click', showRegisterView);
   if (toggleToLogin) toggleToLogin.addEventListener('click', showLoginView);
 
-  // Dynamic Role Badge Detection
-  const updateRoleBadge = (inputId, badgeId) => {
-    const input = document.getElementById(inputId);
-    const badge = document.getElementById(badgeId);
-    if (!input || !badge) return;
-
-    input.addEventListener('input', () => {
-      const val = input.value.trim().toLowerCase();
-      if (!val || !val.includes('@')) {
-        badge.style.display = 'none';
-        return;
-      }
-      badge.style.display = 'block';
-      if (val.endsWith('@profe.edu.mx')) {
-        badge.style.background = 'rgba(138, 43, 226, 0.15)';
-        badge.style.color = '#8a2be2';
-        badge.style.border = '1px solid rgba(138, 43, 226, 0.35)';
-        badge.innerHTML = '🎓 Rol detectado: <strong>Docente / Profe</strong> (@profe.edu.mx)';
+  // Hero Entrar a la App button: if logged in, go to /app/, otherwise open login modal
+  const heroEntrarBtn = document.getElementById('hero-entrar-app-btn');
+  if (heroEntrarBtn) {
+    heroEntrarBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const user = localStorage.getItem('quantum_user') || localStorage.getItem('qn_user');
+      if (user) {
+        window.location.href = '/app/';
       } else {
-        badge.style.background = 'rgba(0, 122, 255, 0.12)';
-        badge.style.color = '#007aff';
-        badge.style.border = '1px solid rgba(0, 122, 255, 0.25)';
-        badge.innerHTML = '🎒 Rol detectado: <strong>Alumno / Uso Personal</strong>';
+        if (loginModal) loginModal.classList.add('active');
       }
     });
-  };
-
-  updateRoleBadge('login-email', 'login-role-badge');
-  updateRoleBadge('reg-email', 'reg-role-badge');
+  }
 
   // Submit Login
   if (loginForm) {

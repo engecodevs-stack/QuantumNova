@@ -37,7 +37,7 @@ function App() {
   };
 
   // Authentication & Session
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+  const [currentUser] = useState<User | null>(() => {
     // Check URL query parameters first (e.g. from Lobby redirect)
     const params = new URLSearchParams(window.location.search);
     const userParam = params.get('user');
@@ -98,24 +98,11 @@ function App() {
     return 'notes';
   });
 
-  const handleToggleRole = () => {
-    if (!currentUser) return;
-    const newRole = currentUser.role === 'profe' ? 'alumno' : 'profe';
-    const updated = { ...currentUser, role: newRole as 'profe' | 'alumno' };
-    localStorage.setItem('quantum_user', JSON.stringify(updated));
-    setCurrentUser(updated);
-    if (newRole === 'profe') {
-      setView('teacher');
-    } else {
-      setView('notes');
-    }
-  };
-
   // Student exam lock state
   const [examLockState, setExamLockState] = useState<{ locked: boolean; communityName?: string; examTitle?: string }>({ locked: false });
 
   useEffect(() => {
-    if (!currentUser?.id || currentUser?.role === 'profe') {
+    if (!currentUser?.id || currentUser?.role === 'profe' || currentUser.id === 'guest_student') {
       setExamLockState({ locked: false });
       return;
     }
@@ -130,10 +117,14 @@ function App() {
         }
       } catch (e) {}
     };
-    checkLock();
+    // Delay first check slightly so backend has finished booting
+    const initialTimer = setTimeout(checkLock, 2000);
     const timer = setInterval(checkLock, 15000);
-    return () => clearInterval(timer);
-  }, [currentUser]);
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(timer);
+    };
+  }, [currentUser?.id, currentUser?.role]);
 
   // Onboarding & Interactive Tour States
   const [isOnboardingActive, setIsOnboardingActive] = useState(false);
@@ -291,50 +282,60 @@ function App() {
   // Fetch initial notes
   const fetchNotes = async () => {
     try {
-      const res = await fetch(getApiUrl('/notes'));
+      const headers: Record<string, string> = {};
+      if (currentUser?.id && currentUser.id !== 'guest_student') {
+        headers['x-user-id'] = currentUser.id;
+      }
+      const res = await fetch(getApiUrl('/notes'), { headers });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
+        if (Array.isArray(data)) {
           setNotes(data);
-          localStorage.setItem('quantum_local_notes', JSON.stringify(data));
           return;
         }
       }
     } catch (err) {
-      console.warn('Backend local no disponible, usando almacenamiento local/demo.');
+      console.warn('Backend local no disponible.');
     }
 
-    const saved = localStorage.getItem('quantum_local_notes');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setNotes(parsed);
-          return;
-        }
-      } catch (e) {}
-    }
-
-    const sampleNotes: Note[] = [
-      {
-        id: 'note-1',
-        title: 'Introducción a la Física Cuántica',
-        content: `# Introducción a la Física Cuántica\n\nLa **física cuántica** es la rama de la física que estudia la materia y la energía a escalas atómicas y subatómicas.\n\n## Conceptos Clave\n1. **Dualidad Onda-Partícula**: Las partículas exhiben comportamientos de ondas y partículas según la observación. Consulta [[Dualidad Onda Particula]].\n2. **Superposición**: Un sistema cuántico existe en varios estados posibles a la vez.\n3. **Entrelazamiento Cuántico**: Conexión instantánea entre partículas entrelazadas.\n\n#fisica #cuantica #ciencia`,
-        tags: ['#fisica', '#cuantica', '#ciencia'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'note-2',
-        title: 'Dualidad Onda Particula',
-        content: `# Dualidad Onda Partícula\n\nFenómeno cuántico donde electrones y fotones presentan tanto propiedades de ondas continuas como partículas discretas.\n\n- Experimento de la doble rendija de Thomas Young.\n- Conexión directa con [[Introducción a la Física Cuántica]].\n\n#fisica #mecanicacuantica`,
-        tags: ['#fisica', '#mecanicacuantica'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+    // Only inject sample demo notes if explicitly in guest demo mode ('guest_student')
+    if (currentUser?.id === 'guest_student') {
+      const saved = localStorage.getItem('quantum_local_demo_notes');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setNotes(parsed);
+            return;
+          }
+        } catch (e) {}
       }
-    ];
-    setNotes(sampleNotes);
-    localStorage.setItem('quantum_local_notes', JSON.stringify(sampleNotes));
+
+      const sampleNotes: Note[] = [
+        {
+          id: 'note-1',
+          title: 'Introducción a la Física Cuántica',
+          content: `# Introducción a la Física Cuántica\n\nLa **física cuántica** es la rama de la física que estudia la materia y la energía a escalas atómicas y subatómicas.\n\n## Conceptos Clave\n1. **Dualidad Onda-Partícula**: Las partículas exhiben comportamientos de ondas y partículas según la observación. Consulta [[Dualidad Onda Particula]].\n2. **Superposición**: Un sistema cuántico existe en varios estados posibles a la vez.\n3. **Entrelazamiento Cuántico**: Conexión instantánea entre partículas entrelazadas.\n\n#fisica #cuantica #ciencia`,
+          tags: ['#fisica', '#cuantica', '#ciencia'],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'note-2',
+          title: 'Dualidad Onda Particula',
+          content: `# Dualidad Onda Partícula\n\nFenómeno cuántico donde electrones y fotones presentan tanto propiedades de ondas continuas como partículas discretas.\n\n- Experimento de la doble rendija de Thomas Young.\n- Conexión directa con [[Introducción a la Física Cuántica]].\n\n#fisica #mecanicacuantica`,
+          tags: ['#fisica', '#mecanicacuantica'],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      setNotes(sampleNotes);
+      localStorage.setItem('quantum_local_demo_notes', JSON.stringify(sampleNotes));
+      return;
+    }
+
+    // For any real registered user: clean empty notes list (serious & professional)
+    setNotes([]);
   };
 
   useEffect(() => {
@@ -347,7 +348,7 @@ function App() {
       setStudySeconds(parsed);
       studySecondsRef.current = parsed;
     }
-  }, []);
+  }, [currentUser?.id]);
 
   // Update HTML styles for Accessibility (Font Scale & Contrast)
   useEffect(() => {
@@ -908,7 +909,6 @@ function App() {
           isSidebarOpenMobile={isSidebarOpenMobile}
           onCloseMobile={() => setIsSidebarOpenMobile(false)}
           currentUser={currentUser}
-          onToggleRole={handleToggleRole}
           onLogout={handleLogout}
           isRightPanelOpen={isRightPanelOpen}
           onToggleRightPanel={() => setIsRightPanelOpen(prev => !prev)}

@@ -96,8 +96,10 @@ async function syncAllLinks(userId?: string) {
 router.get('/notes', async (req: Request, res: Response) => {
   try {
     const userId = req.headers['x-user-id'] as string;
-    const filter = userId ? { user: new mongoose.Types.ObjectId(userId) } : {};
-    const notes = await Note.find(filter).sort({ updated_at: -1 }).populate('folder');
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json([]);
+    }
+    const notes = await Note.find({ user: new mongoose.Types.ObjectId(userId) }).sort({ updated_at: -1 }).populate('folder');
     res.json(notes);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -263,8 +265,10 @@ router.post('/notes/bulk-delete', async (req: Request, res: Response) => {
 router.get('/folders', async (req: Request, res: Response) => {
   try {
     const userId = req.headers['x-user-id'] as string;
-    const filter = userId ? { user: new mongoose.Types.ObjectId(userId) } : {};
-    const folders = await Folder.find(filter).sort({ name: 1 });
+    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json([]);
+    }
+    const folders = await Folder.find({ user: new mongoose.Types.ObjectId(userId) }).sort({ name: 1 });
     res.json(folders);
   } catch (err: any) {
     res.status(500).json({ error: err.message });

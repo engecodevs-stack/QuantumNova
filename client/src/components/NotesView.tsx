@@ -465,19 +465,23 @@ export const NotesView: React.FC<NotesViewProps> = ({
   // Fetch folders from MongoDB backend
   const fetchFolders = async () => {
     try {
-      const res = await fetch(getApiUrl('/folders'));
+      const headers: Record<string, string> = {};
+      if (currentUser?.id && currentUser.id !== 'guest_student') {
+        headers['x-user-id'] = currentUser.id;
+      }
+      const res = await fetch(getApiUrl('/folders'), { headers });
       if (res.ok) {
         const data = await res.json();
-        setFolders(data);
+        setFolders(Array.isArray(data) ? data : []);
       }
     } catch (err) {
-      console.error('Error fetching folders:', err);
+      console.warn('Error fetching folders:', err);
     }
   };
 
   useEffect(() => {
     fetchFolders();
-  }, []);
+  }, [currentUser?.id]);
 
   // Load note values into local edit state when active note changes
   useEffect(() => {
@@ -507,9 +511,13 @@ export const NotesView: React.FC<NotesViewProps> = ({
     const folderName = prompt('Nombre de la nueva carpeta:');
     if (!folderName || !folderName.trim()) return;
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (currentUser?.id && currentUser.id !== 'guest_student') {
+        headers['x-user-id'] = currentUser.id;
+      }
       const res = await fetch(getApiUrl('/folders'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ name: folderName.trim() })
       });
       if (res.ok) {
