@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, LogOut } from 'lucide-react';
 import { Sidebar } from './components/Sidebar';
 import { RightPanel } from './components/RightPanel';
 import { NotesView } from './components/NotesView';
@@ -26,6 +26,13 @@ import { getApiUrl } from './config/api';
 function App() {
   // Redirect helper for lobby
   const redirectToLobby = () => {
+    localStorage.removeItem('quantum_user');
+    localStorage.removeItem('qn_user');
+    sessionStorage.clear();
+    if (window.location.port === '5173') {
+      window.location.href = 'http://localhost:5000/';
+      return;
+    }
     window.location.href = '/';
   };
 
@@ -902,6 +909,7 @@ function App() {
           onCloseMobile={() => setIsSidebarOpenMobile(false)}
           currentUser={currentUser}
           onToggleRole={handleToggleRole}
+          onLogout={handleLogout}
           isRightPanelOpen={isRightPanelOpen}
           onToggleRightPanel={() => setIsRightPanelOpen(prev => !prev)}
         />
@@ -912,25 +920,38 @@ function App() {
         {/* Mobile Header Navbar */}
         {isMobileOrTablet && (
           <header className="h-14 bg-panel border-b border-border-custom px-4 flex items-center justify-between shrink-0 z-20">
-            <button
-              onClick={() => setIsSidebarOpenMobile(true)}
-              className="p-2 rounded-xl bg-bg-secondary border border-border-custom text-text-primary flex items-center justify-center cursor-pointer hover:bg-bg-primary transition-colors"
-              title="Abrir menú"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <span className="font-bold text-sm text-text-primary uppercase tracking-wider">
-              QuantumNova
-            </span>
-            <button
-              onClick={() => setIsRightPanelOpen(true)}
-              className="p-2 rounded-xl bg-bg-secondary border border-border-custom text-text-primary flex items-center justify-center cursor-pointer hover:bg-bg-primary transition-colors"
-              title="Abrir copiloto"
-            >
-              <Sparkles className="w-4.5 h-4.5 text-tech-purple" />
-            </button>
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => setIsSidebarOpenMobile(true)}
+                className="p-2 rounded-xl bg-bg-secondary border border-border-custom text-text-primary flex items-center justify-center cursor-pointer hover:bg-bg-primary transition-colors"
+                title="Abrir menú"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <span className="font-bold text-sm text-text-primary uppercase tracking-wider">
+                QuantumNova
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsRightPanelOpen(true)}
+                className="p-2 rounded-xl bg-bg-secondary border border-border-custom text-text-primary flex items-center justify-center cursor-pointer hover:bg-bg-primary transition-colors"
+                title="Abrir copiloto"
+              >
+                <Sparkles className="w-4.5 h-4.5 text-tech-purple" />
+              </button>
+              <button
+                onClick={handleLogout}
+                className="px-2.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-500/25 flex items-center gap-1.5 text-xs font-semibold cursor-pointer transition-colors"
+                title="Cerrar sesión y volver al Lobby"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Cerrar Sesión</span>
+              </button>
+            </div>
           </header>
         )}
 

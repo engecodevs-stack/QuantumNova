@@ -11,7 +11,8 @@ import {
   AppWindow,
   Users,
   Clock,
-  Sparkles
+  Sparkles,
+  LogOut
 } from 'lucide-react';
 import type { ViewType, User } from '../types';
 
@@ -27,6 +28,7 @@ interface SidebarProps {
   onCloseMobile?: () => void;
   currentUser?: User | null;
   onToggleRole?: () => void;
+  onLogout?: () => void;
   isRightPanelOpen?: boolean;
   onToggleRightPanel?: () => void;
 }
@@ -41,6 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
   currentUser,
   onToggleRole,
+  onLogout,
   isRightPanelOpen = false,
   onToggleRightPanel
 }) => {
@@ -356,27 +359,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
       </div>
 
-      {/* Footer Info / Study Session info */}
-      <div data-tour="sidebar-study-time" className="p-2.5 border-t border-[#E1E1EA] dark:border-[#292936] shrink-0">
+      {/* Footer Info / Study Session info & User Logout */}
+      <div data-tour="sidebar-study-time" className="p-2.5 border-t border-[#E1E1EA] dark:border-[#292936] shrink-0 flex flex-col gap-2">
         {isExpanded ? (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18 }}
-            className="flex flex-col gap-1.5 p-3 rounded-xl bg-white dark:bg-[#12121B] border border-[#E1E1EA] dark:border-[#292936] shadow-xs"
+            className="flex flex-col gap-2 p-3 rounded-xl bg-white dark:bg-[#12121B] border border-[#E1E1EA] dark:border-[#292936] shadow-xs"
           >
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#A947E8] dark:bg-[#B04BEE] animate-pulse" />
-              <span className="text-[10px] text-[#5F6070] dark:text-[#A4A4B5] font-semibold tracking-wider uppercase">
-                Sesión de estudio
-              </span>
-            </div>
-            <div className="text-sm font-bold font-mono tracking-wider text-[#18181F] dark:text-[#F5F5F7] ml-4">
-              {studyTimeStr}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-[#A947E8] dark:bg-[#B04BEE] animate-pulse" />
+                <span className="text-[10px] text-[#5F6070] dark:text-[#A4A4B5] font-semibold tracking-wider uppercase">
+                  Sesión de estudio
+                </span>
+              </div>
+              <div className="text-xs font-bold font-mono tracking-wider text-[#18181F] dark:text-[#F5F5F7]">
+                {studyTimeStr}
+              </div>
             </div>
 
             {/* Role Badge and Switcher */}
-            <div className="flex items-center justify-between pt-2 mt-1 border-t border-[#E1E1EA] dark:border-[#292936]">
+            <div className="flex items-center justify-between pt-1.5 border-t border-[#E1E1EA] dark:border-[#292936]">
               <span className="text-[10px] font-medium text-[#5F6070] dark:text-[#A4A4B5]">
                 {isTeacher ? 'Rol Docente' : 'Rol Estudiante'}
               </span>
@@ -391,15 +396,50 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 </button>
               )}
             </div>
+
+            {/* User Profile Card & Direct Logout */}
+            <div className="flex items-center justify-between pt-2 border-t border-[#E1E1EA] dark:border-[#292936]">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-[#007AFF] to-[#AF52DE] text-white text-[11px] font-bold flex items-center justify-center shrink-0">
+                  {currentUser?.fullname?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="truncate text-left">
+                  <div className="text-[11px] font-bold text-[#18181F] dark:text-[#F5F5F7] truncate max-w-[95px]">
+                    {currentUser?.fullname || 'Estudiante'}
+                  </div>
+                </div>
+              </div>
+
+              {onLogout && (
+                <button
+                  onClick={onLogout}
+                  className="flex items-center gap-1 px-2 py-1 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors text-[11px] font-semibold cursor-pointer"
+                  title="Cerrar sesión y volver al Lobby"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Salir</span>
+                </button>
+              )}
+            </div>
           </motion.div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-1">
+          <div className="flex flex-col items-center justify-center gap-2 py-1">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-[#5F6070] dark:text-[#A4A4B5] hover:bg-[#A947E8]/5 dark:hover:bg-[#181321] transition-colors"
               title={`Sesión de estudio: ${studyTimeStr}`}
             >
               <Clock className="w-5 h-5 text-[#A947E8] dark:text-[#B04BEE]" />
             </div>
+
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
+                title="Cerrar sesión"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
           </div>
         )}
       </div>
